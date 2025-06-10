@@ -9,10 +9,10 @@ class ImagesSeeder extends Seeder
     public function run(): void
     {
         $images = [];
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             $images[] = [
-                'place_id' => ($i % 10) + 1, // Asume que hay al menos 10 lugares
-                'url' => 'https://picsum.photos/seed/' . $i . '/400/300',
+                'place_id' => $i, // Asociar a los primeros 10 lugares
+                'path' => 'lugares/ejemplo' . $i . '.jpg',
                 'description' => 'Imagen de ejemplo ' . $i,
                 'created_at' => now(),
                 'updated_at' => now(),

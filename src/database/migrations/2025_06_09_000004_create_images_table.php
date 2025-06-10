@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('images', function (Blueprint $table) {
             $table->id();
             $table->foreignId('place_id')->constrained('places')->onDelete('cascade');
-            $table->string('url');
+            $table->string('path')->comment('Ruta relativa en storage/app/public');
             $table->string('description')->nullable();
             $table->timestamps();
         });
