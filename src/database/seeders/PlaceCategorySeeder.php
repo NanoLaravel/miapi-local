@@ -11,7 +11,7 @@ class PlaceCategorySeeder extends Seeder
         $data = [];
         for ($i = 1; $i <= 20; $i++) {
             $data[] = [
-                'place_id' => ($i % 10) + 1, // Asume que hay al menos 10 lugares
+                'place_id' => $i, // Asume que hay al menos 20 lugares
                 'category_id' => ($i % 20) + 1, // 20 categorías
                 'created_at' => now(),
                 'updated_at' => now(),

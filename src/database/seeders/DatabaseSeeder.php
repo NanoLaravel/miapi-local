@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,6 +12,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Desactivar claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('reviews')->truncate();
+        DB::table('images')->truncate();
+        DB::table('place_category')->truncate();
+        DB::table('places')->truncate();
+        DB::table('categories')->truncate();
+        DB::table('users')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         $this->call([
             UsersSeeder::class,
             CategoriesSeeder::class,
