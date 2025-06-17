@@ -21,7 +21,29 @@ class ImageController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        \Log::info('Request recibido en store', [
+            'all' => $request->all(),
+            'hasFile' => $request->hasFile('image'),
+            'file' => $request->file('image')
+        ]);
+        $validated = $request->validate([
+            'place_id' => 'required|exists:places,id',
+            'image' => 'required|image|max:2048',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        $file = $request->file('image');
+        $originalName = $file->getClientOriginalName();
+        $path = $file->storeAs('lugares', $originalName, 'public');
+
+        $image = Image::create([
+            'place_id' => $validated['place_id'],
+            'path' => $path,
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        \Log::info('Imagen creada', ['image' => $image]);
+        return response()->json($image, 201);
     }
 
     /**
@@ -37,7 +59,12 @@ class ImageController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $image = Image::findOrFail($id);
+        $validated = $request->validate([
+            'description' => 'nullable|string|max:255',
+        ]);
+        $image->update($validated);
+        return response()->json($image);
     }
 
     /**
@@ -45,6 +72,12 @@ class ImageController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $image = Image::findOrFail($id);
+        // Eliminar archivo físico si existe
+        if ($image->path && \Storage::disk('public')->exists($image->path)) {
+            \Storage::disk('public')->delete($image->path);
+        }
+        $image->delete();
+        return response()->json(['message' => 'Imagen eliminada correctamente.']);
     }
 }

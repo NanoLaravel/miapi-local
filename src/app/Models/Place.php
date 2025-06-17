@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Place extends Model
 {
     protected $fillable = [
-        'name', 'description', 'address', 'latitude', 'longitude', 'phone', 'website', 'type', 'rating'
+        'name', 'description', 'address', 'latitude', 'longitude', 'phone', 'website', 'type', 'rating', 'facilities'
+    ];
+
+    protected $casts = [
+        'facilities' => 'array',
     ];
 
     public function categories(): BelongsToMany
