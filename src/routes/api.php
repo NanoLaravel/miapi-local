@@ -113,7 +113,7 @@ Route::get('places/rating/{min}/{max}', function ($min, $max) {
         ->get();
 });
 
-// Filtro por favoritos de un usuario (requiere tabla/interfaz de favoritos)
+// Filtro por favoritos de un usuario (ahora funcional)
 Route::get('places/favorites/{userId}', function ($userId) {
     return \App\Models\Place::whereHas('favorites', function($q) use ($userId) {
         $q->where('user_id', $userId);
@@ -127,6 +127,97 @@ Route::get('places/type/{type}', [PlaceController::class, 'byType']);
 Route::get('places/category/{category}', [PlaceController::class, 'byCategory']);
 Route::get('places/{place}/reviews', function ($placeId) {
     return \App\Models\Review::where('place_id', $placeId)->get();
+});
+
+// Agregar un lugar a favoritos de un usuario
+Route::post('places/{place}/favorite/{user}', function ($placeId, $userId) {
+    $user = \App\Models\User::findOrFail($userId);
+    $user->favoritePlaces()->syncWithoutDetaching([$placeId]);
+    return response()->json(['message' => 'Lugar agregado a favoritos.']);
+});
+
+// Eliminar un lugar de favoritos de un usuario
+Route::delete('places/{place}/favorite/{user}', function ($placeId, $userId) {
+    $user = \App\Models\User::findOrFail($userId);
+    $user->favoritePlaces()->detach($placeId);
+    return response()->json(['message' => 'Lugar eliminado de favoritos.']);
+});
+
+// Filtro: lugares con precio mínimo entre un rango (por tipo de precio opcional)
+Route::get('places/price-range', function (Request $request) {
+    $min = $request->query('min');
+    $max = $request->query('max');
+    $type = $request->query('type'); // opcional
+    $query = \App\Models\Place::whereHas('prices', function($q) use ($min, $max, $type) {
+        if ($min !== null) $q->where('value', '>=', $min);
+        if ($max !== null) $q->where('value', '<=', $max);
+        if ($type) $q->where('type', $type);
+    });
+    return $query->with(['categories', 'images', 'reviews', 'prices'])->get();
+});
+
+// Filtro: lugares con al menos un precio de tipo específico
+Route::get('places/price-type/{type}', function ($type) {
+    return \App\Models\Place::whereHas('prices', function($q) use ($type) {
+        $q->where('type', $type);
+    })->with(['categories', 'images', 'reviews', 'prices'])->get();
+});
+
+// Endpoint combinado para filtrar lugares por múltiples criterios
+Route::get('places/advanced-filter', function (Request $request) {
+    $query = \App\Models\Place::query();
+
+    // Filtro por facilities (comodidades)
+    if ($request->filled('facilities')) {
+        $facilitiesArray = array_map(function($f) {
+            return strtolower(trim($f));
+        }, explode(',', $request->query('facilities')));
+        $query->where(function($q) use ($facilitiesArray) {
+            foreach ($facilitiesArray as $facility) {
+                $q->whereJsonContains('facilities', $facility);
+            }
+        });
+    }
+
+    // Filtro por tipo
+    if ($request->filled('type')) {
+        $query->where('type', $request->query('type'));
+    }
+
+    // Filtro por categoría
+    if ($request->filled('category_id')) {
+        $query->whereHas('categories', function($q) use ($request) {
+            $q->where('categories.id', $request->query('category_id'));
+        });
+    }
+
+    // Filtro por rango de precio y tipo de precio
+    if ($request->filled('min_price') || $request->filled('max_price') || $request->filled('price_type')) {
+        $query->whereHas('prices', function($q) use ($request) {
+            if ($request->filled('min_price')) $q->where('value', '>=', $request->query('min_price'));
+            if ($request->filled('max_price')) $q->where('value', '<=', $request->query('max_price'));
+            if ($request->filled('price_type')) $q->where('type', $request->query('price_type'));
+        });
+    }
+
+    // Filtro por ubicación (lat, lng, radius en km)
+    if ($request->filled('lat') && $request->filled('lng') && $request->filled('radius')) {
+        $lat = $request->query('lat');
+        $lng = $request->query('lng');
+        $radius = $request->query('radius');
+        $query->whereNotNull('latitude')->whereNotNull('longitude');
+        $places = $query->get()->filter(function($place) use ($lat, $lng, $radius) {
+            $distance = 6371 * acos(
+                cos(deg2rad($lat)) * cos(deg2rad($place->latitude)) *
+                cos(deg2rad($place->longitude) - deg2rad($lng)) +
+                sin(deg2rad($lat)) * sin(deg2rad($place->latitude))
+            );
+            return $distance <= $radius;
+        })->values();
+        return $places->load(['categories', 'images', 'reviews', 'prices']);
+    }
+
+    return $query->with(['categories', 'images', 'reviews', 'prices'])->get();
 });
 
 Route::apiResource('places', PlaceController::class);

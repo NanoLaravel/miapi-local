@@ -29,4 +29,14 @@ class Place extends Model
     {
         return $this->hasMany(Review::class);
     }
+    
+    public function favorites(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'favorites');
+    }
+
+    public function prices(): HasMany
+    {
+        return $this->hasMany(Price::class);
+    }
 }
