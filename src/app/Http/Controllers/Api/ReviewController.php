@@ -11,9 +11,32 @@ class ReviewController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Review::all();
+        $query = Review::query();
+
+        // Filtros por campos individuales
+        foreach ([
+            'cleanliness', 'accuracy', 'check_in', 'communication', 'location', 'price', 'rating', 'place_id', 'user_id'
+        ] as $field) {
+            if ($request->filled($field)) {
+                $query->where($field, $request->input($field));
+            }
+        }
+
+        // Filtro avanzado por promedio de ítems calificados
+        if ($request->filled('items_average_min')) {
+            $min = floatval($request->input('items_average_min'));
+            $query->get()->filter(function($review) use ($min) {
+                return $review->items_average !== null && $review->items_average >= $min;
+            });
+            // NOTA: Este filtro se aplica en memoria por ser un campo calculado
+            return $query->get()->filter(function($review) use ($min) {
+                return $review->items_average !== null && $review->items_average >= $min;
+            })->values();
+        }
+
+        return $query->get();
     }
 
     /**
@@ -26,6 +49,12 @@ class ReviewController extends Controller
             'user_id' => 'required|exists:users,id',
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:1000',
+            'cleanliness' => 'nullable|integer|min:1|max:5',
+            'accuracy' => 'nullable|integer|min:1|max:5',
+            'check_in' => 'nullable|integer|min:1|max:5',
+            'communication' => 'nullable|integer|min:1|max:5',
+            'location' => 'nullable|integer|min:1|max:5',
+            'price' => 'nullable|integer|min:1|max:5',
         ]);
         $review = Review::create($validated);
         return response()->json($review, 201);
@@ -48,6 +77,12 @@ class ReviewController extends Controller
         $validated = $request->validate([
             'rating' => 'sometimes|required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:1000',
+            'cleanliness' => 'nullable|integer|min:1|max:5',
+            'accuracy' => 'nullable|integer|min:1|max:5',
+            'check_in' => 'nullable|integer|min:1|max:5',
+            'communication' => 'nullable|integer|min:1|max:5',
+            'location' => 'nullable|integer|min:1|max:5',
+            'price' => 'nullable|integer|min:1|max:5',
         ]);
         $review->update($validated);
         return response()->json($review);

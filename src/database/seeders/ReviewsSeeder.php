@@ -15,6 +15,12 @@ class ReviewsSeeder extends Seeder
                 'user_id' => ($i % 20) + 1, // 20 usuarios
                 'rating' => rand(3, 5),
                 'comment' => 'Comentario de ejemplo ' . $i,
+                'cleanliness' => $i <= 10 ? rand(3, 5) : null,
+                'accuracy' => $i <= 10 ? rand(3, 5) : null,
+                'check_in' => $i <= 10 ? rand(3, 5) : null,
+                'communication' => $i <= 10 ? rand(3, 5) : null,
+                'location' => $i <= 10 ? rand(3, 5) : null,
+                'price' => $i <= 10 ? rand(3, 5) : null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
