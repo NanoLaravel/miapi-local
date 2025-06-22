@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\PlaceController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Log;
 
 // Filtros personalizados de places (deben ir antes de apiResource)
@@ -219,6 +220,21 @@ Route::get('places/advanced-filter', function (Request $request) {
 
     return $query->with(['categories', 'images', 'reviews', 'prices'])->get();
 });
+
+// Rutas de autenticación
+Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+// Socialite Google
+Route::get('auth/google/redirect', [AuthController::class, 'redirectToGoogle']);
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+// Socialite Facebook
+Route::get('auth/facebook/redirect', [AuthController::class, 'redirectToFacebook']);
+Route::get('auth/facebook/callback', [AuthController::class, 'handleFacebookCallback']);
+
+// Registro de usuarios
+Route::post('register', [AuthController::class, 'register']);
 
 Route::apiResource('places', PlaceController::class);
 Route::apiResource('categories', CategoryController::class);
