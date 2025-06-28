@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Image;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
@@ -21,7 +23,7 @@ class ImageController extends Controller
      */
     public function store(Request $request)
     {
-        \Log::info('Request recibido en store', [
+        Log::info('Request recibido en store', [
             'all' => $request->all(),
             'hasFile' => $request->hasFile('image'),
             'file' => $request->file('image')
@@ -42,7 +44,7 @@ class ImageController extends Controller
             'description' => $validated['description'] ?? null,
         ]);
 
-        \Log::info('Imagen creada', ['image' => $image]);
+        Log::info('Imagen creada', ['image' => $image]);
         return response()->json($image, 201);
     }
 
@@ -74,8 +76,8 @@ class ImageController extends Controller
     {
         $image = Image::findOrFail($id);
         // Eliminar archivo físico si existe
-        if ($image->path && \Storage::disk('public')->exists($image->path)) {
-            \Storage::disk('public')->delete($image->path);
+        if ($image->path && Storage::disk('public')->exists($image->path)) {
+            Storage::disk('public')->delete($image->path);
         }
         $image->delete();
         return response()->json(['message' => 'Imagen eliminada correctamente.']);

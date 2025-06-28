@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -70,11 +72,67 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
         ]);
+        $role = 'user';
+        if ($request->user() && $request->user()->role === 'admin' && $request->filled('role')) {
+            $role = $request->role;
+        }
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            // 'role' => $role, // Se asignará con Spatie
+        ]);
+        if (!$user) {
+            Log::error('No se pudo crear el usuario', ['request' => $request->all()]);
+            return response()->json(['message' => 'No se pudo crear el usuario'], 500);
+        }
+        $token = $user->createToken('api-token')->plainTextToken;
+        return response()->json(['token' => $token, 'user' => $user], 201);
+    }
+
+    // Registro público (solo rol user)
+    public function registerPublic(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        $user->assignRole('user');
+        if (!$user) {
+            Log::error('No se pudo crear el usuario', ['request' => $request->all()]);
+            return response()->json(['message' => 'No se pudo crear el usuario'], 500);
+        }
+        $token = $user->createToken('api-token')->plainTextToken;
+        return response()->json(['token' => $token, 'user' => $user], 201);
+    }
+
+    // Registro avanzado (solo admin puede asignar rol)
+    public function registerWithRole(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+            'role' => 'required|string|in:admin,editor,user,guest',
+        ]);
+        // Aquí luego se usará Spatie para asignar roles
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+        $user->assignRole($request->role);
+        if (!$user) {
+            Log::error('No se pudo crear el usuario (admin)', ['request' => $request->all()]);
+            return response()->json(['message' => 'No se pudo crear el usuario'], 500);
+        }
+        // $user->assignRole($request->role); // Se agregará tras instalar Spatie
         $token = $user->createToken('api-token')->plainTextToken;
         return response()->json(['token' => $token, 'user' => $user], 201);
     }
