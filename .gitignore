@@ -18,4 +18,4 @@ yarn-error.log
 .idea/
 .vscode/
 .DS_Store
-Thumbs.db
+Thumbs.dbmysql_data/
