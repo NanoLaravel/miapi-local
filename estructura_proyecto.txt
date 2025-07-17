@@ -1,0 +1,357 @@
+.
+├── docker-compose.yml
+├── dockerfiles
+│   ├── composer.dockerfile
+│   ├── nginx.dockerfile
+│   └── php.dockerfile
+├── .env
+├── estructura_proyecto.txt
+├── .gitignore
+├── mysql
+│   └── .env
+├── mysql_data
+│   ├── auto.cnf
+│   ├── ca-key.pem
+│   ├── ca.pem
+│   ├── client-cert.pem
+│   ├── client-key.pem
+│   ├── ib_buffer_pool
+│   ├── ibdata1
+│   ├── ib_logfile0
+│   ├── ib_logfile1
+│   ├── laravel_project
+│   │   ├── cache.ibd
+│   │   ├── cache_locks.ibd
+│   │   ├── categories.ibd
+│   │   ├── failed_jobs.ibd
+│   │   ├── favorites.ibd
+│   │   ├── images.ibd
+│   │   ├── job_batches.ibd
+│   │   ├── jobs.ibd
+│   │   ├── migrations.ibd
+│   │   ├── model_has_permissions.ibd
+│   │   ├── model_has_roles.ibd
+│   │   ├── password_reset_tokens.ibd
+│   │   ├── permissions.ibd
+│   │   ├── personal_access_tokens.ibd
+│   │   ├── place_category.ibd
+│   │   ├── places.ibd
+│   │   ├── prices.ibd
+│   │   ├── reviews.ibd
+│   │   ├── role_has_permissions.ibd
+│   │   ├── roles.ibd
+│   │   ├── sessions.ibd
+│   │   └── users.ibd
+│   ├── laravel_project_5.SDI
+│   ├── mysql
+│   │   ├── catalogs.ibd
+│   │   ├── character_sets.ibd
+│   │   ├── collations.ibd
+│   │   ├── columns.ibd
+│   │   ├── columns_priv.ibd
+│   │   ├── column_stats.ibd
+│   │   ├── column_type_elements.ibd
+│   │   ├── component.ibd
+│   │   ├── db.ibd
+│   │   ├── default_roles.ibd
+│   │   ├── engine_cost.ibd
+│   │   ├── events.ibd
+│   │   ├── foreign_key_column_usage.ibd
+│   │   ├── foreign_keys.ibd
+│   │   ├── func.ibd
+│   │   ├── general_log_93.SDI
+│   │   ├── general_log.CSM
+│   │   ├── general_log.CSV
+│   │   ├── global_grants.ibd
+│   │   ├── gtid_executed.ibd
+│   │   ├── help_category.ibd
+│   │   ├── help_keyword.ibd
+│   │   ├── help_relation.ibd
+│   │   ├── help_topic.ibd
+│   │   ├── index_column_usage.ibd
+│   │   ├── indexes.ibd
+│   │   ├── index_partitions.ibd
+│   │   ├── index_stats.ibd
+│   │   ├── innodb_index_stats.ibd
+│   │   ├── innodb_table_stats.ibd
+│   │   ├── parameters.ibd
+│   │   ├── parameter_type_elements.ibd
+│   │   ├── plugin.ibd
+│   │   ├── procs_priv.ibd
+│   │   ├── proxies_priv.ibd
+│   │   ├── role_edges.ibd
+│   │   ├── routines.ibd
+│   │   ├── schemata.ibd
+│   │   ├── server_cost.ibd
+│   │   ├── servers.ibd
+│   │   ├── slave_master_info.ibd
+│   │   ├── slave_relay_log_info.ibd
+│   │   ├── slave_worker_info.ibd
+│   │   ├── slow_log_94.SDI
+│   │   ├── slow_log.CSM
+│   │   ├── slow_log.CSV
+│   │   ├── st_spatial_reference_systems.ibd
+│   │   ├── table_partitions.ibd
+│   │   ├── table_partition_values.ibd
+│   │   ├── tables.ibd
+│   │   ├── tablespace_files.ibd
+│   │   ├── tablespaces.ibd
+│   │   ├── tables_priv.ibd
+│   │   ├── table_stats.ibd
+│   │   ├── time_zone.ibd
+│   │   ├── time_zone_leap_second.ibd
+│   │   ├── time_zone_name.ibd
+│   │   ├── time_zone_transition.ibd
+│   │   ├── time_zone_transition_type.ibd
+│   │   ├── triggers.ibd
+│   │   ├── user.ibd
+│   │   ├── version.ibd
+│   │   ├── view_routine_usage.ibd
+│   │   └── view_table_usage.ibd
+│   ├── performance_sche_3.SDI
+│   ├── performance_schema
+│   │   ├── accounts_185.SDI
+│   │   ├── cond_instances_122.SDI
+│   │   ├── data_locks_142.SDI
+│   │   ├── data_lock_waits_143.SDI
+│   │   ├── events_errors_su_178.SDI
+│   │   ├── events_errors_su_179.SDI
+│   │   ├── events_errors_su_180.SDI
+│   │   ├── events_errors_su_181.SDI
+│   │   ├── events_errors_su_182.SDI
+│   │   ├── events_stages_cu_154.SDI
+│   │   ├── events_stages_hi_155.SDI
+│   │   ├── events_stages_hi_156.SDI
+│   │   ├── events_stages_su_157.SDI
+│   │   ├── events_stages_su_158.SDI
+│   │   ├── events_stages_su_159.SDI
+│   │   ├── events_stages_su_160.SDI
+│   │   ├── events_stages_su_161.SDI
+│   │   ├── events_statement_162.SDI
+│   │   ├── events_statement_163.SDI
+│   │   ├── events_statement_164.SDI
+│   │   ├── events_statement_165.SDI
+│   │   ├── events_statement_166.SDI
+│   │   ├── events_statement_167.SDI
+│   │   ├── events_statement_168.SDI
+│   │   ├── events_statement_169.SDI
+│   │   ├── events_statement_191.SDI
+│   │   ├── events_statement_192.SDI
+│   │   ├── events_statement_193.SDI
+│   │   ├── events_statement_194.SDI
+│   │   ├── events_transacti_170.SDI
+│   │   ├── events_transacti_171.SDI
+│   │   ├── events_transacti_172.SDI
+│   │   ├── events_transacti_173.SDI
+│   │   ├── events_transacti_174.SDI
+│   │   ├── events_transacti_175.SDI
+│   │   ├── events_transacti_176.SDI
+│   │   ├── events_transacti_177.SDI
+│   │   ├── events_waits_cur_123.SDI
+│   │   ├── events_waits_his_124.SDI
+│   │   ├── events_waits_his_125.SDI
+│   │   ├── events_waits_sum_126.SDI
+│   │   ├── events_waits_sum_127.SDI
+│   │   ├── events_waits_sum_128.SDI
+│   │   ├── events_waits_sum_129.SDI
+│   │   ├── events_waits_sum_130.SDI
+│   │   ├── events_waits_sum_131.SDI
+│   │   ├── file_instances_132.SDI
+│   │   ├── file_summary_by__133.SDI
+│   │   ├── file_summary_by__134.SDI
+│   │   ├── global_status_220.SDI
+│   │   ├── global_variables_212.SDI
+│   │   ├── host_cache_138.SDI
+│   │   ├── hosts_183.SDI
+│   │   ├── memory_summary_b_187.SDI
+│   │   ├── memory_summary_b_188.SDI
+│   │   ├── memory_summary_b_189.SDI
+│   │   ├── memory_summary_b_190.SDI
+│   │   ├── memory_summary_g_186.SDI
+│   │   ├── metadata_locks_209.SDI
+│   │   ├── mutex_instances_139.SDI
+│   │   ├── objects_summary__140.SDI
+│   │   ├── performance_time_141.SDI
+│   │   ├── persisted_variab_215.SDI
+│   │   ├── prepared_stateme_195.SDI
+│   │   ├── replication_appl_200.SDI
+│   │   ├── replication_appl_201.SDI
+│   │   ├── replication_appl_202.SDI
+│   │   ├── replication_appl_203.SDI
+│   │   ├── replication_appl_204.SDI
+│   │   ├── replication_appl_205.SDI
+│   │   ├── replication_conn_196.SDI
+│   │   ├── replication_conn_199.SDI
+│   │   ├── replication_grou_197.SDI
+│   │   ├── replication_grou_198.SDI
+│   │   ├── rwlock_instances_144.SDI
+│   │   ├── session_account__207.SDI
+│   │   ├── session_connect__206.SDI
+│   │   ├── session_status_221.SDI
+│   │   ├── session_variable_213.SDI
+│   │   ├── setup_actors_145.SDI
+│   │   ├── setup_consumers_146.SDI
+│   │   ├── setup_instrument_147.SDI
+│   │   ├── setup_objects_148.SDI
+│   │   ├── setup_timers_149.SDI
+│   │   ├── socket_instances_135.SDI
+│   │   ├── socket_summary_b_136.SDI
+│   │   ├── socket_summary_b_137.SDI
+│   │   ├── status_by_accoun_219.SDI
+│   │   ├── status_by_host_218.SDI
+│   │   ├── status_by_thread_216.SDI
+│   │   ├── status_by_user_217.SDI
+│   │   ├── table_handles_208.SDI
+│   │   ├── table_io_waits_s_150.SDI
+│   │   ├── table_io_waits_s_151.SDI
+│   │   ├── table_lock_waits_152.SDI
+│   │   ├── threads_153.SDI
+│   │   ├── users_184.SDI
+│   │   ├── user_variables_b_210.SDI
+│   │   ├── variables_by_thr_211.SDI
+│   │   └── variables_info_214.SDI
+│   ├── private_key.pem
+│   ├── public_key.pem
+│   ├── server-cert.pem
+│   ├── server-key.pem
+│   ├── sys
+│   │   └── sys_config.ibd
+│   └── sys_4.SDI
+├── nginx
+│   └── default.conf
+├── README.md
+└── src
+    ├── app
+    │   ├── Console
+    │   ├── Contracts
+    │   ├── Enums
+    │   ├── Events
+    │   ├── Exceptions
+    │   ├── Helpers
+    │   ├── Http
+    │   │   ├── Contracts
+    │   │   ├── Controllers
+    │   │   │   ├── Api
+    │   │   │   │   ├── CategoryController.php
+    │   │   │   │   ├── ImageController.php
+    │   │   │   │   ├── PlaceController.php
+    │   │   │   │   └── ReviewController.php
+    │   │   │   └── Controller.php
+    │   │   ├── Enums
+    │   │   ├── Helpers
+    │   │   ├── Middleware
+    │   │   ├── Observers
+    │   │   ├── Presenters
+    │   │   ├── Requests
+    │   │   ├── Resources
+    │   │   ├── Responses
+    │   │   ├── Scopes
+    │   │   ├── Services
+    │   │   └── Traits
+    │   ├── Jobs
+    │   ├── Listeners
+    │   ├── Mail
+    │   ├── Models
+    │   │   ├── Category.php
+    │   │   ├── Image.php
+    │   │   ├── Place.php
+    │   │   ├── Price.php
+    │   │   ├── Review.php
+    │   │   └── User.php
+    │   ├── Notifications
+    │   ├── Observers
+    │   ├── Policies
+    │   ├── Presenters
+    │   ├── Providers
+    │   │   └── AppServiceProvider.php
+    │   ├── Repositories
+    │   ├── Rules
+    │   ├── Scopes
+    │   ├── Services
+    │   ├── Traits
+    │   └── View
+    ├── artisan
+    ├── bootstrap
+    │   ├── app.php
+    │   ├── cache
+    │   │   ├── .gitignore
+    │   │   ├── packages.php
+    │   │   └── services.php
+    │   └── providers.php
+    ├── composer.json
+    ├── composer.lock
+    ├── config
+    │   ├── app.php
+    │   ├── auth.php
+    │   ├── cache.php
+    │   ├── database.php
+    │   ├── filesystems.php
+    │   ├── logging.php
+    │   ├── mail.php
+    │   ├── queue.php
+    │   ├── sanctum.php
+    │   ├── services.php
+    │   └── session.php
+    ├── database
+    │   ├── database.sqlite
+    │   ├── factories
+    │   │   └── UserFactory.php
+    │   ├── .gitignore
+    │   ├── migrations
+    │   │   ├── 0001_01_01_000000_create_users_table.php
+    │   │   ├── 0001_01_01_000001_create_cache_table.php
+    │   │   ├── 0001_01_01_000002_create_jobs_table.php
+    │   │   ├── 2025_06_09_000001_create_places_table.php
+    │   │   ├── 2025_06_09_000002_create_categories_table.php
+    │   │   ├── 2025_06_09_000003_create_place_category_table.php
+    │   │   ├── 2025_06_09_000004_create_images_table.php
+    │   │   ├── 2025_06_09_000005_create_reviews_table.php
+    │   │   ├── 2025_06_15_000001_add_facilities_to_places_table.php
+    │   │   ├── 2025_06_16_000001_create_favorites_table.php
+    │   │   ├── 2025_06_20_000001_create_prices_table.php
+    │   │   ├── 2025_06_21_000001_add_review_items_to_reviews_table.php
+    │   │   └── 2025_06_22_012733_create_personal_access_tokens_table.php
+    │   └── seeders
+    │       ├── CategoriesSeeder.php
+    │       ├── DatabaseSeeder.php
+    │       ├── FavoritesSeeder.php
+    │       ├── ImagesSeeder.php
+    │       ├── PlaceCategorySeeder.php
+    │       ├── PlacesSeeder.php
+    │       ├── PricesSeeder.php
+    │       ├── ReviewsSeeder.php
+    │       └── UsersSeeder.php
+    ├── .editorconfig
+    ├── .env
+    ├── .env.example
+    ├── .gitattributes
+    ├── .gitignore
+    ├── package.json
+    ├── phpunit.xml
+    ├── public
+    │   ├── favicon.ico
+    │   ├── .htaccess
+    │   ├── index.php
+    │   └── robots.txt
+    ├── README.md
+    ├── resources
+    │   ├── css
+    │   │   └── app.css
+    │   ├── js
+    │   │   ├── app.js
+    │   │   └── bootstrap.js
+    │   └── views
+    │       └── welcome.blade.php
+    ├── routes
+    │   ├── api.php
+    │   ├── console.php
+    │   └── web.php
+    ├── tests
+    │   ├── Feature
+    │   │   └── ExampleTest.php
+    │   ├── TestCase.php
+    │   └── Unit
+    │       └── ExampleTest.php
+    └── vite.config.js
+
+63 directories, 292 files
