@@ -23,6 +23,7 @@ services:
       dockerfile: dockerfiles/php.dockerfile
     volumes:
       - ./src:/var/www/html:delegated
+      - ./logs/laravel.log:/var/www/html/storage/logs/laravel.log
     container_name: laravel_php
     networks:
       - laravel_network
@@ -42,7 +43,7 @@ services:
     networks:
       - laravel_network
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5.2.1 
@@ -62,6 +63,7 @@ services:
     networks:
       - laravel_network
 
+
   composer:
     build:
       context: .
@@ -70,8 +72,10 @@ services:
       - ./src:/var/www/html
     depends_on:
       - php
+      - mysql
     networks:
       - laravel_network
+
 
   artisan:
     build:
@@ -80,5 +84,11 @@ services:
     volumes:
       - ./src:/var/www/html
     entrypoint: ["php", "/var/www/html/artisan"]
+    depends_on:
+      - php
+      - mysql
     networks:
       - laravel_network
+
+volumes:
+  mysql_data:
