@@ -5,9 +5,63 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
+use App\Models\User;
 
 class AuthController extends Controller
 {
+    // --- SOCIALITE GOOGLE ---
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->stateless()->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        $googleUser = Socialite::driver('google')->stateless()->user();
+        $user = User::firstOrCreate(
+            ['email' => $googleUser->getEmail()],
+            [
+                'name' => $googleUser->getName() ?? $googleUser->getNickname() ?? 'Google User',
+                'password' => bcrypt(uniqid()),
+            ]
+        );
+        // Opcional: asignar rol por defecto
+        if (!$user->hasRole('user')) {
+            $user->assignRole('user');
+        }
+        $token = $user->createToken('google')->plainTextToken;
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ]);
+    }
+
+    // --- SOCIALITE FACEBOOK ---
+    public function redirectToFacebook()
+    {
+        return Socialite::driver('facebook')->stateless()->redirect();
+    }
+
+    public function handleFacebookCallback()
+    {
+        $fbUser = Socialite::driver('facebook')->stateless()->user();
+        $user = User::firstOrCreate(
+            ['email' => $fbUser->getEmail()],
+            [
+                'name' => $fbUser->getName() ?? $fbUser->getNickname() ?? 'Facebook User',
+                'password' => bcrypt(uniqid()),
+            ]
+        );
+        if (!$user->hasRole('user')) {
+            $user->assignRole('user');
+        }
+        $token = $user->createToken('facebook')->plainTextToken;
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ]);
+    }
     // Login básico con Sanctum
     public function login(Request $request)
     {
@@ -78,27 +132,5 @@ class AuthController extends Controller
         return response()->json(['message' => 'Sesión cerrada correctamente']);
     }
 
-    // Socialite Google
-    public function redirectToGoogle()
-    {
-        // Implementa redirección a Google
-        return response()->json(['message' => 'Google redirect (implementa lógica)']);
-    }
-    public function handleGoogleCallback()
-    {
-        // Implementa callback de Google
-        return response()->json(['message' => 'Google callback (implementa lógica)']);
-    }
 
-    // Socialite Facebook
-    public function redirectToFacebook()
-    {
-        // Implementa redirección a Facebook
-        return response()->json(['message' => 'Facebook redirect (implementa lógica)']);
-    }
-    public function handleFacebookCallback()
-    {
-        // Implementa callback de Facebook
-        return response()->json(['message' => 'Facebook callback (implementa lógica)']);
-    }
 }
