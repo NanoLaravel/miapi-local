@@ -1,0 +1,51 @@
+name: 'Autenticación Social'
+description: ''
+endpoints:
+  -
+    httpMethods:
+      - GET
+    uri: api/auth/google/redirect
+    metadata:
+      groupName: 'Autenticación Social'
+      groupDescription: ''
+      subgroup: Google
+      subgroupDescription: ''
+      title: 'Redirige al usuario a Google para autenticación social.'
+      description: ''
+      authenticated: false
+      deprecated: false
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 302
+        content: 'Redirección a Google OAuth.'
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+              "message": "The route miapi.local/api/auth/google/redirect could not be found."
+          }
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+        description: null
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []

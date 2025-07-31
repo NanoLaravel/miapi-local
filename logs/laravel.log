@@ -2684,3 +2684,26 @@ Stack trace:
 #37 /var/www/html/public/index.php(20): Illuminate\\Foundation\\Application->handleRequest(Object(Illuminate\\Http\\Request))
 #38 {main}
 "} 
+[2025-07-30 23:25:30] local.ERROR: Command "scribe:install" is not defined.
+
+Did you mean one of these?
+    migrate:install
+    sail:install
+    scribe:config:diff
+    scribe:generate
+    scribe:strategy {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"scribe:install\" is not defined.
+
+Did you mean one of these?
+    migrate:install
+    sail:install
+    scribe:config:diff
+    scribe:generate
+    scribe:strategy at /var/www/html/vendor/symfony/console/Application.php:725)
+[stacktrace]
+#0 /var/www/html/vendor/symfony/console/Application.php(283): Symfony\\Component\\Console\\Application->find('scribe:install')
+#1 /var/www/html/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1234): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 /var/www/html/artisan(16): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#5 {main}
+"} 
