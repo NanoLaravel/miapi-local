@@ -30,11 +30,21 @@ class UserResource extends Resource
                     ->email()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
+            Forms\Components\DateTimePicker::make('email_verified_at')
+                ->label('Correo verificado en')
+                ->disabled()
+                ->displayFormat('Y-m-d H:i:s')
+                ->timezone('America/Bogota'), // opcional
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('roles')
+                    ->label('Rol')
+                    ->relationship('roles', 'name')
+                    ->multiple(false)
+                    ->preload()
+                    ->required(),
             ]);
     }
 
@@ -49,6 +59,11 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('role')
+                    ->label('Rol')
+                    ->getStateUsing(fn($record) => $record->roles->pluck('name')->implode(', '))
+                    ->sortable()
+                    ->badge(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
