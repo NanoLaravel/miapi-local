@@ -34,6 +34,7 @@ class PlaceResource extends Resource
 {
     protected static ?string $model = Place::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'Lugares'; // <-- aquí
 
     public static function table(Table $table): Table
     {
@@ -200,8 +201,7 @@ class PlaceResource extends Resource
     {
         return [
             'index' => Pages\ListPlaces::route('/'),
-            'create' => Pages\CreatePlace::route('/create'),
-            // 'view' => Pages\ViewPlace::route('/{record}'),
+            'create' => Pages\CreatePlace::route('/create'),            
             'edit' => Pages\EditPlace::route('/{record}/edit'),
         ];
     }

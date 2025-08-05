@@ -18,6 +18,7 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'usuarios'; // <-- aquí
 
     public static function form(Form $form): Form
     {
@@ -37,7 +38,9 @@ class UserResource extends Resource
                 ->timezone('America/Bogota'), // opcional
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required()
+                    ->required(fn(string $context): bool => $context === 'create')
+                    ->dehydrated(fn(string $context): bool => $context === 'create')
+                    ->visible(fn(string $context): bool => $context === 'create')
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
                     ->label('Rol')
@@ -53,10 +56,13 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre del lugar')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label('correo electronico')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email_verified_at')
+                    ->label('email verificado en:')
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('role')

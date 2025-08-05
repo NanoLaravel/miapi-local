@@ -18,19 +18,29 @@ class ImageResource extends Resource
     protected static ?string $model = Image::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'Imágenes'; // <-- aquí
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('place_id')
+                    ->label('Lugar')
                     ->relationship('place', 'name')
                     ->required(),
                 Forms\Components\TextInput::make('path')
+                    ->label('Ruta de la imagen')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->placeholder('Ej: images/parque.jpg')
+                    ->helperText('Ruta relativa o URL de la imagen.')
+                    ->default('images/default.jpg'),
                 Forms\Components\TextInput::make('description')
-                    ->maxLength(255),
+                    ->label('Descripción de la imagen')
+                    ->maxLength(255)
+                    ->placeholder('Ej: Vista principal del parque')
+                    ->helperText('Breve descripción de la imagen.')
+                    ->default('Sin descripción'),
             ]);
     }
 
@@ -39,11 +49,14 @@ class ImageResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('place.name')
-                    ->numeric()
+                    ->label('Lugar')
+                    ->searchable()                    
                     ->sortable(),
                 Tables\Columns\TextColumn::make('path')
+                    ->label('Ruta de la imagen')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
+                    ->label('Descripción de la imagen') 
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

@@ -18,25 +18,31 @@ class PriceResource extends Resource
     protected static ?string $model = Price::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+      protected static ?string $navigationLabel = 'Precios'; // <-- aquí
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('place_id')
+                    ->label('Lugar')
                     ->relationship('place', 'name')
                     ->required(),
                 Forms\Components\TextInput::make('type')
+                    ->label('Tipo')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('value')
+                    ->label('Valor')
                     ->required()
                     ->numeric(),
                 Forms\Components\TextInput::make('currency')
+                    ->label('Moneda')
                     ->required()
                     ->maxLength(10)
                     ->default('COP'),
                 Forms\Components\TextInput::make('description')
+                    ->label('Descripción')  
                     ->maxLength(255),
             ]);
     }
@@ -46,16 +52,21 @@ class PriceResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('place.name')
+                    ->label('Lugar')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('type')
+                    ->label('Tipo')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('value')
+                    ->label('Valor')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('currency')
+                    ->label('Moneda')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
+                    ->label('Descripción')      
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

@@ -18,34 +18,45 @@ class ReviewResource extends Resource
     protected static ?string $model = Review::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'Reseñas'; // <-- aquí
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('place_id')
+                    ->label('Lugar')    
                     ->relationship('place', 'name')
                     ->required(),
                 Forms\Components\Select::make('user_id')
+                    ->label('Usuario')
                     ->relationship('user', 'name')
                     ->required(),
                 Forms\Components\TextInput::make('rating')
                     ->required()
                     ->numeric(),
                 Forms\Components\TextInput::make('cleanliness')
+                    ->label('Limpieza')
                     ->numeric(),
                 Forms\Components\TextInput::make('accuracy')
+                    ->label('Puntualidad')
                     ->numeric(),
                 Forms\Components\TextInput::make('check_in')
+                    ->label('facilidad de Check In')
                     ->numeric(),
                 Forms\Components\TextInput::make('communication')
+                    ->label('Comunicación')
                     ->numeric(),
                 Forms\Components\TextInput::make('location')
                     ->numeric(),
                 Forms\Components\TextInput::make('price')
+                    ->label('Precio')
                     ->numeric()
                     ->prefix('$'),
                 Forms\Components\Textarea::make('comment')
+                    ->label('Comentario')
+                    ->maxLength(1000)
+                    ->nullable()
                     ->columnSpanFull(),
             ]);
     }
@@ -55,27 +66,37 @@ class ReviewResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('place.name')
+                    ->label('Lugar')
+                    ->searchable()
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Usuario')
+                    ->searchable()  
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('rating')
+                    ->label('Calificación')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('cleanliness')
+                    ->label('Limpieza')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('accuracy')
+                    ->label('Puntualidad')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('check_in')
+                    ->label('Facilidad de Check In')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('communication')
+                    ->label('Comunicación')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('location')
+                    ->label('Ubicación')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('price')

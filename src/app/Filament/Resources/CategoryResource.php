@@ -18,16 +18,25 @@ class CategoryResource extends Resource
     protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'Categorías'; // <-- aquí
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nombre de la categoría')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->placeholder('Ej: Restaurantes, Hoteles, Parques...')
+                    ->helperText('Escribe el nombre único para la categoría.')
+                    ->default('General'),
                 Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
+                    ->label('Descripción de la categoría')
+                    ->columnSpanFull()
+                    ->placeholder('Describe brevemente la categoría')
+                    ->helperText('Puedes agregar detalles o ejemplos para esta categoría.')
+                    ->default('Sin descripción'),
             ]);
     }
 
@@ -36,7 +45,11 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre de la categoría')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->label('Descripción de la categoría')
+                    ->searchable(), 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
