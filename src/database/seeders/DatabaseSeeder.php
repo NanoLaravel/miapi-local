@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             ReviewsSeeder::class,
             PricesSeeder::class,
             FavoritesSeeder::class,
+            EventsAdvertisementsPermissionsSeeder::class,
         ]);
     }
 }
