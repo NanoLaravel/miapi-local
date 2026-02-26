@@ -1,61 +1,204 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <a href="https://laravel.com" target="_blank">
+    <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo">
+  </a>
 </p>
 
-## About Laravel
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-11.x-red?style=flat&logo=laravel" alt="Laravel">
+  <img src="https://img.shields.io/badge/PHP-8.3-blueviolet?style=flat&logo=php" alt="PHP">
+  <img src="https://img.shields.io/badge/MySQL-8.0-blue?style=flat&logo=mysql" alt="MySQL">
+  <img src="https://img.shields.io/badge/Docker-24.0-blue?style=flat&logo=docker" alt="Docker">
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+# 🎯 API REST - Places, Events & Advertisements
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+API RESTful completa desarrollada con Laravel 11 y Sanctum para autenticación. Incluye panel de administración con FilamentPHP.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ Tecnologías
 
-## Learning Laravel
+| Categoría | Tecnología |
+|-----------|------------|
+| **Backend** | Laravel 11.x |
+| **PHP** | 8.3+ |
+| **Base de Datos** | MySQL 8.0 |
+| **Autenticación** | Laravel Sanctum + Socialite |
+| **Frontend Admin** | FilamentPHP 3.x |
+| **Documentación** | Scribe (OpenAPI) |
+| **Contenedores** | Docker + Docker Compose |
+| **Permisos** | Spatie Permissions |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## ✨ Características
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### API REST
+- ✅ Autenticación con tokens (Sanctum)
+- ✅ Login social (Google, Facebook)
+- ✅ CRUD completo de Places, Categories, Images, Reviews
+- ✅ Sistema de favoritos
+- ✅ Filtros avanzados de búsqueda
+- ✅ Control de acceso por roles (User, Editor, Admin)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Panel de Administración (Filament)
+- ✅ Gestión visual de lugares
+- ✅ Gestión de eventos y publicidad
+- ✅ Sistema de roles y permisos
+- ✅ Widgets de estadísticas
+- ✅ Interfaz en español
 
-## Laravel Sponsors
+### Eventos y Publicidad
+- ✅ Eventos (crear, editar, eliminar)
+- ✅ Publicidad con posiciones
+- ✅ Tracking de clicks
+- ✅ Imágenes polimórficas
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 📡 Endpoints Principales
 
-### Premium Partners
+```
+POST   /api/login              # Autenticación
+POST   /api/register           # Registro público
+POST   /api/logout             # Cerrar sesión
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+GET    /api/places             # Listar lugares
+GET    /api/events             # Listar eventos
+GET    /api/advertisements     # Listar publicidad
 
-## Contributing
+# Rutas protegidas requieren token:
+Authorization: Bearer <token>
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+📖 **Documentación completa**: `/docs` (cuando el servidor está corriendo)
 
-## Code of Conduct
+## 🚀 Instalación
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Requisitos
+- Docker y Docker Compose
+- Git
 
-## Security Vulnerabilities
+### Pasos
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+# 1. Clonar repositorio
+git clone https://github.com/NanoLaravel/miapi-local.git
+cd miapi-local
 
-## License
+# 2. Configurar entorno
+cp src/.env.example src/.env
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 3. Iniciar contenedores
+docker-compose up -d --build
+
+# 4. Instalar dependencias
+docker-compose exec app composer install
+
+# 5. Generar clave
+docker-compose exec app php artisan key:generate
+
+# 6. Ejecutar migraciones
+docker-compose exec app php artisan migrate
+
+# 7. Poblar base de datos (opcional)
+docker-compose exec app php artisan db:seed
+
+# 8. Generar documentación API
+docker-compose exec app php artisan scribe:generate
+```
+
+### URLs de Acceso
+| Servicio | URL |
+|----------|-----|
+| API | `http://localhost/api` |
+| Documentación | `http://localhost/docs` |
+| Admin Panel | `http://localhost/admin` |
+| phpMyAdmin | `http://localhost:8090` |
+
+## 🔐 Roles y Permisos
+
+| Rol | Permisos |
+|-----|----------|
+| **User** | Ver lugares, eventos, publicidad. Gestionar favoritos. |
+| **Editor** | Todo lo anterior + CRUD de recursos. |
+| **Admin** | Todo lo anterior + eliminación + gestión de usuarios. |
+
+## 🐳 Docker
+
+El proyecto incluye configuración completa de Docker:
+
+- **PHP-FPM 8.3** - Aplicación Laravel
+- **Nginx** - Servidor web
+- **MySQL 8.0** - Base de datos
+- **phpMyAdmin** - Gestión de DB
+
+### Comandos útiles
+
+```bash
+# Ver logs
+docker-compose logs -f app
+
+# Acceder al contenedor
+docker-compose exec app bash
+
+# Regenerar clave
+docker exec laravel_php php /var/www/html/artisan key:generate
+```
+
+## 📁 Estructura del Proyecto
+
+```
+miapi-local/
+├── docker/              # Scripts de Docker
+├── nginx/               # Configuración Nginx
+├── src/
+│   ├── app/
+│   │   ├── Filament/   # Recursos del panel admin
+│   │   ├── Http/       # Controllers y Middlewares
+│   │   └── Models/     # Modelos Eloquent
+│   ├── database/
+│   │   ├── migrations/ # Migraciones
+│   │   └── seeders/   # Seeders
+│   └── routes/
+│       └── api.php    # Rutas API
+└── docker-compose.yml
+```
+
+## ⚠️ Seguridad
+
+- ❌ **NO** exponer credenciales reales
+- ✅ Usar variables de entorno (`.env`)
+- ✅ Regenerar `APP_KEY` en producción
+- ✅ Configurar `APP_DEBUG=false` en producción
+- ✅ Usar HTTPS en producción
+- ✅ Tokens de Sanctum con expiración configurada
+
+## 📝 Configuración para Producción
+
+Ver archivo [`.env.example`](.env.example) para las variables requeridas.
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://tu-dominio.com
+APP_KEY=<generar con artisan>
+
+DB_HOST=mysql
+DB_DATABASE=tu_db
+DB_USERNAME=tu_user
+DB_PASSWORD=tu_password
+
+SANCTUM_STATEFUL_DOMAINS=tu-dominio.com
+```
+
+## 🤝 Contribuir
+
+1. Fork del repositorio
+2. Crear rama (`git checkout -b feature/foo`)
+3. Commit cambios (`git commit -m 'feat: agregar algo'`)
+4. Push a la rama (`git push origin feature/foo`)
+5. Crear Pull Request
+
+## 📄 Licencia
+
+MIT License. Ver [LICENSE](LICENSE) para más detalles.
+
+---
+
+<p align="center">Desarrollado con ❤️ usando Laravel</p>
