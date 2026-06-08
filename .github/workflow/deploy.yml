@@ -1,0 +1,27 @@
+name: Despliegue Continuo (CD) al VPS
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta automáticamente al hacer push a la rama main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar Código del Repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Llave SSH e Iniciar Despliegue
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            # Ejecuta el script de despliegue en el VPS
+            /root/apps/laravel-api-dashboard/deploy.sh
+```
+
