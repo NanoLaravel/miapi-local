@@ -2,7 +2,6 @@
     "require": {
         "laravel/sanctum": "^4.1",
         "laravel/socialite": "^5.21",
-        "spatie/laravel-permission": "^6.20",
-        "bezhansalleh/filament-shield": "^3.3"
+        "spatie/laravel-permission": "^6.20"
     }
 }

@@ -12,12 +12,12 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class EventController extends Controller
 {
     use AuthorizesRequests;
-    /**
-     * Display a listing of events.
-     * Público: lista eventos activos y actuales
-     */
-    public function index(Request $request)
-    {
+        public function __construct()
+        {
+        $this->authorizeResource(Event::class, 'event');
+        }
+        public function index(Request $request)
+        {
         $query = Event::query()->with(['place:id,name,address', 'user:id,name']);
 
         // Filtros opcionales
@@ -120,16 +120,12 @@ class EventController extends Controller
      * Display the specified event.
      * Público: detalle de un evento
      */
-    public function show(string $id)
+    public function show(Event $event)
     {
-        return Event::with(['place', 'user:id,name'])
-            ->findOrFail($id);
+        return $event ;
     }
 
-    /**
-     * Store a newly created event.
-     * Requiere rol: editor, admin
-     */
+  
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -171,10 +167,8 @@ class EventController extends Controller
      * Update the specified event.
      * Requiere rol: editor, admin (o ser el creador)
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Event $event)
     {
-        $event = Event::findOrFail($id);
-
         // Verificar autorización
         $this->authorize('update', $event);
 
@@ -215,9 +209,9 @@ class EventController extends Controller
      * Remove the specified event.
      * Requiere rol: admin
      */
-    public function destroy(string $id)
+    public function destroy(Event $event)
     {
-        $event = Event::findOrFail($id);
+     
 
         // Eliminar imagen si existe
         if ($event->image_path) {

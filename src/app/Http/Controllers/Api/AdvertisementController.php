@@ -12,12 +12,12 @@ class AdvertisementController extends Controller
 {
     use AuthorizesRequests;
 
-    /**
-     * Display active advertisements by position.
-     * Público: muestra anuncios activos para una posición
-     */
-    public function index(Request $request)
-    {
+        public function __construct()
+        {
+        $this->authorizeResource(Advertisement::class, 'advertisement');
+        }
+        public function index(Request $request)
+        {
         $query = Advertisement::query()->with(['place:id,name', 'user:id,name']);
 
         // Filtrar por posición
@@ -81,9 +81,9 @@ class AdvertisementController extends Controller
      * Display the specified advertisement.
      * Público: detalle de un anuncio
      */
-    public function show(string $id)
+    public function show(Advertisement $advertisement)
     {
-        $ad = Advertisement::with(['place', 'user:id,name'])->findOrFail($id);
+        $ad = $advertisement->load(['place', 'user:id,name']);
         
         // Incrementar vistas
         $ad->incrementViews();
@@ -95,9 +95,9 @@ class AdvertisementController extends Controller
      * Track click on advertisement.
      * Público: registra un clic en el anuncio
      */
-    public function trackClick(string $id)
+    public function trackClick(Advertisement $advertisement)
     {
-        $ad = Advertisement::findOrFail($id);
+        $ad = $advertisement;
         $ad->incrementClicks();
 
         return response()->json([
@@ -147,9 +147,9 @@ class AdvertisementController extends Controller
      * Update the specified advertisement.
      * Requiere rol: editor, admin (o ser el creador)
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Advertisement $advertisement)
     {
-        $ad = Advertisement::findOrFail($id);
+        $ad = $advertisement;
 
         // Verificar autorización
         $this->authorize('update', $ad);
@@ -187,9 +187,9 @@ class AdvertisementController extends Controller
      * Remove the specified advertisement.
      * Requiere rol: admin
      */
-    public function destroy(string $id)
+    public function destroy(Advertisement $advertisement)
     {
-        $ad = Advertisement::findOrFail($id);
+        $ad = $advertisement;
 
         // Eliminar imagen
         if ($ad->image_path) {

@@ -1,4 +1,8 @@
 FROM php:8.3-fpm-alpine
+
+# >>> COPIAR COMPOSER DESDE LA IMAGEN OFICIAL (Añadir esta línea) <<<
+COPY --from=composer:2.8.9 /usr/bin/composer /usr/bin/composer
+
 WORKDIR /var/www/html
 COPY src .
 

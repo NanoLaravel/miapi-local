@@ -5,17 +5,18 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Image;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use App\Policies\Concerns\HasRoleAuthorization;
 
 class ImagePolicy
 {
     use HandlesAuthorization;
-
+    use HasRoleAuthorization;
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_image');
+        return $this->canViewContent($user);
     }
 
     /**
@@ -23,7 +24,7 @@ class ImagePolicy
      */
     public function view(User $user, Image $image): bool
     {
-        return $user->can('view_image');
+        return $this->canViewContent($user);
     }
 
     /**
@@ -31,7 +32,7 @@ class ImagePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_image');
+        return $this->canManageContent($user);
     }
 
     /**
@@ -39,7 +40,7 @@ class ImagePolicy
      */
     public function update(User $user, Image $image): bool
     {
-        return $user->can('update_image');
+        return $this->canManageContent($user);
     }
 
     /**
@@ -47,7 +48,7 @@ class ImagePolicy
      */
     public function delete(User $user, Image $image): bool
     {
-        return $user->can('delete_image');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -55,7 +56,7 @@ class ImagePolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_image');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -63,7 +64,7 @@ class ImagePolicy
      */
     public function forceDelete(User $user, Image $image): bool
     {
-        return $user->can('force_delete_image');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -71,7 +72,7 @@ class ImagePolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_image');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -79,7 +80,7 @@ class ImagePolicy
      */
     public function restore(User $user, Image $image): bool
     {
-        return $user->can('restore_image');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -87,7 +88,7 @@ class ImagePolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_image');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -95,7 +96,7 @@ class ImagePolicy
      */
     public function replicate(User $user, Image $image): bool
     {
-        return $user->can('replicate_image');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -103,6 +104,6 @@ class ImagePolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_image');
+        return $this->canDeleteContent($user);
     }
 }

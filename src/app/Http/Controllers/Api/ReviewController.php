@@ -8,11 +8,12 @@ use App\Models\Review;
 
 class ReviewController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
+        public function __construct()
+        {
+        $this->authorizeResource(Review::class, 'review');
+        }
+        public function index(Request $request)
+        {
         $query = Review::query();
 
         // Filtros por campos individuales

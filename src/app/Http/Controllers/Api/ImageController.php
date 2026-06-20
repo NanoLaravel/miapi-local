@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function __construct()
+    {
+    $this->authorizeResource(Image::class, 'image');
+    }
     public function index()
     {
         return Image::all();

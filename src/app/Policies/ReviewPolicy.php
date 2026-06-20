@@ -5,17 +5,19 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Review;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use App\Policies\Concerns\HasRoleAuthorization;
 
 class ReviewPolicy
 {
     use HandlesAuthorization;
+     use HasRoleAuthorization;
 
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_review');
+        return $this->canManageContent($user);
     }
 
     /**
@@ -23,7 +25,7 @@ class ReviewPolicy
      */
     public function view(User $user, Review $review): bool
     {
-        return $user->can('view_review');
+        return $this->canManageContent($user);
     }
 
     /**
@@ -31,7 +33,7 @@ class ReviewPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_review');
+        return $this->canManageContent($user);
     }
 
     /**
@@ -39,7 +41,7 @@ class ReviewPolicy
      */
     public function update(User $user, Review $review): bool
     {
-        return $user->can('update_review');
+        return $this->canManageContent($user);
     }
 
     /**
@@ -47,7 +49,7 @@ class ReviewPolicy
      */
     public function delete(User $user, Review $review): bool
     {
-        return $user->can('delete_review');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -55,7 +57,7 @@ class ReviewPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_review');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -63,7 +65,7 @@ class ReviewPolicy
      */
     public function forceDelete(User $user, Review $review): bool
     {
-        return $user->can('force_delete_review');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -71,7 +73,7 @@ class ReviewPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_review');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -79,7 +81,7 @@ class ReviewPolicy
      */
     public function restore(User $user, Review $review): bool
     {
-        return $user->can('restore_review');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -87,7 +89,7 @@ class ReviewPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_review');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -95,7 +97,7 @@ class ReviewPolicy
      */
     public function replicate(User $user, Review $review): bool
     {
-        return $user->can('replicate_review');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -103,6 +105,6 @@ class ReviewPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_review');
+        return $this->canDeleteContent($user);
     }
 }

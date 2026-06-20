@@ -8,11 +8,13 @@ use App\Models\Place;
 
 class PlaceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   public function __construct()
+    {
+    $this->authorizeResource(Place::class, 'place');
+    }
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Place::class);   
         $query = Place::query();
         if ($request->has('type')) {
             $query->where('type', $request->type);
@@ -28,9 +30,11 @@ class PlaceController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Place $place)
     {
-        return Place::with(['categories', 'images', 'reviews'])->findOrFail($id);
+      $this->authorize('view', $place);    
+    return $place-> load(['categories', 'images', 'reviews']);
+        
     }
 
     /**
@@ -56,7 +60,8 @@ class PlaceController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+            $this->authorize('create', Place::class);  
+            $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'address' => 'required|string|max:255',
@@ -88,7 +93,7 @@ class PlaceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Place $place)
     {
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -108,7 +113,7 @@ class PlaceController extends Controller
             $validated['facilities'] = array_map('trim', explode(',', $validated['facilities']));
         }
 
-        $place = Place::findOrFail($id);
+        
         $place->update($validated);
 
         // Actualizar categorías si se envían
@@ -122,9 +127,9 @@ class PlaceController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Place $place)
     {
-        $place = Place::findOrFail($id);
+        $this->authorize('delete', $place);
         $place->categories()->detach();
         $place->images()->delete();
         $place->reviews()->delete();

@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             UsersSeeder::class,
+            RoleSeeder::class,
             CategoriesSeeder::class,
             PlacesSeeder::class,
             PlaceCategorySeeder::class,
@@ -31,6 +32,7 @@ class DatabaseSeeder extends Seeder
             ReviewsSeeder::class,
             PricesSeeder::class,
             FavoritesSeeder::class,
+            UserRoleSeeder::class,
             EventsAdvertisementsPermissionsSeeder::class,
         ]);
     }

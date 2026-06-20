@@ -5,25 +5,25 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Advertisement;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use App\Policies\Concerns\HasRoleAuthorization;
 
 class AdvertisementPolicy
 {
     use HandlesAuthorization;
+    use HasRoleAuthorization;
 
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_advertisement');
+        return $this->canViewContent($user);
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
+   
     public function view(User $user, Advertisement $advertisement): bool
-    {
-        return $user->can('view_advertisement');
+        {
+            return $this->canViewContent($user);
     }
 
     /**
@@ -31,7 +31,7 @@ class AdvertisementPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_advertisement');
+        return $this->canManageContent($user);
     }
 
     /**
@@ -39,17 +39,8 @@ class AdvertisementPolicy
      */
     public function update(User $user, Advertisement $advertisement): bool
     {
-        // Admin puede editar cualquier anuncio
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-        
-        // Editor puede editar sus propios anuncios o si tiene el permiso
-        if ($user->hasRole('editor')) {
-            return $advertisement->user_id === $user->id || $user->can('update_advertisement');
-        }
-        
-        return $user->can('update_advertisement');
+      
+        return $this->canManageContent($user);
     }
 
     /**
@@ -57,8 +48,8 @@ class AdvertisementPolicy
      */
     public function delete(User $user, Advertisement $advertisement): bool
     {
-        // Solo admin puede eliminar anuncios
-        return $user->hasRole('admin') || $user->can('delete_advertisement');
+        
+        return  $this->canDeleteContent($user);
     }
 
     /**
@@ -66,7 +57,7 @@ class AdvertisementPolicy
      */
     public function restore(User $user, Advertisement $advertisement): bool
     {
-        return $user->can('restore_advertisement');
+        return $this->canDeleteContent($user);
     }
 
     /**
@@ -74,6 +65,6 @@ class AdvertisementPolicy
      */
     public function forceDelete(User $user, Advertisement $advertisement): bool
     {
-        return $user->can('force_delete_advertisement');
+        return $this->canDeleteContent($user);
     }
 }

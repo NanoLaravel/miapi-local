@@ -8,11 +8,14 @@ use App\Models\Category;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function __construct()
+    {
+    $this->authorizeResource(Category::class, 'category');
+    }
+
     public function index()
     {
+        $this->authorize('viewAny', Category::class);
         return Category::all();
     }
 
@@ -21,6 +24,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Category::class);
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string|max:255',
@@ -32,19 +36,24 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Category $category)
     {
-        return Category::with('places')->findOrFail($id);
+        $this->authorize('view', $category);
+        return $category->load('places');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Category $category)
     {
-        $category = Category::findOrFail($id);
+        $this->authorize('update', $category);
         $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255|unique:categories,name,' . $id,
+            'name' => 'sometimes|required|string|max:255|unique:categories,name,' . $category->id,
+            'description' => 'nullable|string|max:255',
+        ]);
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string|max:255',
         ]);
         $category->update($validated);
@@ -54,9 +63,10 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Category $category)
     {
-        $category = Category::findOrFail($id);
+
+         $this->authorize('delete', $category);
         $category->places()->detach();
         $category->delete();
         return response()->json(['message' => 'Categoría eliminada correctamente.']);

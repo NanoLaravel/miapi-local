@@ -9,8 +9,10 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
@@ -52,5 +54,13 @@ class User extends Authenticatable
     public function favoritePlaces(): BelongsToMany
     {
         return $this->belongsToMany(Place::class, 'favorites');
+    }
+
+     public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasAnyRole([
+            'admin',
+            'editor',
+        ]);
     }
 }

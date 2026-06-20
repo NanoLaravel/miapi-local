@@ -39,14 +39,15 @@ services:
     tty: true
     container_name: laravel_mysql
     environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
     # No exponemos el puerto al exterior. Solo es accesible desde dentro de 'laravel_network'
     # Si requieres acceder desde el host o tu PC vía SSH, bindeamos a la IP local interna
     ports:
-      - "127.0.0.1:3306:3306"
+    #cambiado a 33061 para evitar colisiones con el mysql nativo de hestiacp
+      - "127.0.0.1:33061:3306"
     networks:
       - laravel_network
     volumes:
@@ -63,8 +64,8 @@ services:
       - "127.0.0.1:8090:80"
     environment:
       - PMA_HOST=mysql
-      - PMA_USER=${MYSQL_USER}
-      - PMA_PASSWORD=${MYSQL_PASSWORD}
+      - PMA_USER=${DB_USERNAME}
+      - PMA_PASSWORD=${DB_PASSWORD}
       - PMA_ABSOLUTE_URI=http://localhost:8090/
       - PMA_ARBITRARY=1
       - PMA_SSL=false
@@ -81,6 +82,16 @@ services:
     depends_on:
       - php
       - mysql
+    networks:
+      - laravel_network
+    
+  node:
+    image: node:22-alpine
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html
+    command: sh -c "tail -f /dev/null"
+    container_name: laravel_node
     networks:
       - laravel_network
 
