@@ -16,6 +16,10 @@ chmod -R 775 src/storage src/bootstrap/cache logs
 # 4. Levantar y compilar contenedores Docker con el compose de producción
 echo "Reconstruyendo imágenes de Docker..."
 docker compose -f docker-compose.prod.yml up -d --build
+# 4.1 Corregir propietario de los archivos del proyecto para que coincidan
+# con el usuario 'laravel' (uid=1000) dentro del contenedor PHP
+echo "Corrigiendo permisos de archivos..."
+docker compose -f docker-compose.prod.yml exec -T -u root php chown -R laravel:laravel /var/www/html
 
 # 5. Ejecutar optimizaciones dentro del contenedor PHP
 echo "Ejecutando optimizaciones de Laravel 12 y Filament..."
