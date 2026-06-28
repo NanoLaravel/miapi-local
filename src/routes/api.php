@@ -28,9 +28,11 @@ Route::post('register', [AuthController::class, 'registerPublic']);
 // OAuth
 Route::get('auth/google/redirect', [AuthController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+Route::post('auth/google/token', [AuthController::class, 'loginWithGoogleToken']);
 
 Route::get('auth/facebook/redirect', [AuthController::class, 'redirectToFacebook']);
 Route::get('auth/facebook/callback', [AuthController::class, 'handleFacebookCallback']);
+Route::post('auth/facebook/token', [AuthController::class, 'loginWithFacebookToken']);
 
 
 /*
