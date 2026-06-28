@@ -10,6 +10,60 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    // --- HELPER DE AUTENTICACIÓN SOCIAL ---
+    /**
+     * Registra o inicia sesión a un usuario obtenido desde un proveedor social (Google o Facebook).
+     */
+    protected function socialLoginOrRegister($socialUser, string $provider)
+    {
+        // 1. Buscar por ID único del proveedor social
+        $user = User::where($provider . '_id', $socialUser->getId())->first();
+
+        if (!$user) {
+            $email = $socialUser->getEmail();
+            
+            // 2. Si no tiene ID registrado, intentar buscar por email para vincular
+            if ($email) {
+                $user = User::where('email', $email)->first();
+            }
+
+            if ($user) {
+                // Vincular cuenta existente
+                $user->update([
+                    $provider . '_id' => $socialUser->getId(),
+                    'avatar_url' => $user->avatar_url ?? $socialUser->getAvatar(),
+                ]);
+            } else {
+                // 3. Crear nuevo usuario si no existe
+                $user = User::create([
+                    'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? ucfirst($provider) . ' User',
+                    'email' => $email ?? ($socialUser->getId() . '@' . $provider . '.com'),
+                    'password' => bcrypt(uniqid()), // Contraseña aleatoria segura
+                    $provider . '_id' => $socialUser->getId(),
+                    'avatar_url' => $socialUser->getAvatar(),
+                ]);
+            }
+        } else {
+            // Actualizar avatar si el usuario no tiene uno y el social provee uno
+            if (empty($user->avatar_url) && $socialUser->getAvatar()) {
+                $user->update(['avatar_url' => $socialUser->getAvatar()]);
+            }
+        }
+
+        // Asignar rol por defecto si no tiene ninguno
+        if (!$user->hasRole('user')) {
+            $user->assignRole('user');
+        }
+
+        // Crear token Sanctum para consumo API
+        $token = $user->createToken($provider . '-auth')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ]);
+    }
+
     // --- SOCIALITE GOOGLE ---
     /**
      * Redirige al usuario a Google para autenticación social.
@@ -24,7 +78,6 @@ class AuthController extends Controller
         return Socialite::driver('google')->stateless()->redirect();
     }
 
-    public function handleGoogleCallback()
     /**
      * Callback de Google para autenticación social.
      *
@@ -34,33 +87,61 @@ class AuthController extends Controller
      * @response 200 {"user": {"id": 1, "name": "Google User", "email": "user@gmail.com"}, "token": "1|abc..."}
      * @response 401 {"error": "No autorizado"}
      */
+    public function handleGoogleCallback()
     {
-        $googleUser = Socialite::driver('google')->stateless()->user();
-        $user = User::firstOrCreate(
-            ['email' => $googleUser->getEmail()],
-            [
-                'name' => $googleUser->getName() ?? $googleUser->getNickname() ?? 'Google User',
-                'password' => bcrypt(uniqid()),
-            ]
-        );
-        // Opcional: asignar rol por defecto
-        if (!$user->hasRole('user')) {
-            $user->assignRole('user');
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+            return $this->socialLoginOrRegister($googleUser, 'google');
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'No se pudo autenticar con Google: ' . $e->getMessage()
+            ], 401);
         }
-        $token = $user->createToken('google')->plainTextToken;
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
+    }
+
+    /**
+     * Iniciar sesión enviando un token de acceso de Google (para dispositivos móviles).
+     *
+     * @group Autenticación Social
+     * @subgroup Google
+     * @unauthenticated
+     * @bodyParam access_token string required El token de acceso obtenido de Google SDK en la app móvil.
+     * @response 200 {"user": {"id": 1, "name": "Google User", "email": "user@gmail.com"}, "token": "1|abc..."}
+     * @response 401 {"error": "Token de Google inválido"}
+     */
+    public function loginWithGoogleToken(Request $request)
+    {
+        $request->validate([
+            'access_token' => 'required|string',
         ]);
+
+        try {
+            $googleUser = Socialite::driver('google')
+                ->stateless()
+                ->userFromToken($request->access_token);
+                
+            return $this->socialLoginOrRegister($googleUser, 'google');
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Token de Google inválido: ' . $e->getMessage()
+            ], 401);
+        }
     }
 
     // --- SOCIALITE FACEBOOK ---
+    /**
+     * Redirige al usuario a Facebook para autenticación social.
+     *
+     * @group Autenticación Social
+     * @subgroup Facebook
+     * @unauthenticated
+     * @response 302 Redirección a Facebook OAuth.
+     */
     public function redirectToFacebook()
     {
         return Socialite::driver('facebook')->stateless()->redirect();
     }
 
-    public function handleFacebookCallback()
     /**
      * Callback de Facebook para autenticación social.
      *
@@ -70,23 +151,45 @@ class AuthController extends Controller
      * @response 200 {"user": {"id": 1, "name": "Facebook User", "email": "user@fb.com"}, "token": "1|abc..."}
      * @response 401 {"error": "No autorizado"}
      */
+    public function handleFacebookCallback()
     {
-        $fbUser = Socialite::driver('facebook')->stateless()->user();
-        $user = User::firstOrCreate(
-            ['email' => $fbUser->getEmail()],
-            [
-                'name' => $fbUser->getName() ?? $fbUser->getNickname() ?? 'Facebook User',
-                'password' => bcrypt(uniqid()),
-            ]
-        );
-        if (!$user->hasRole('user')) {
-            $user->assignRole('user');
+        try {
+            $fbUser = Socialite::driver('facebook')->stateless()->user();
+            return $this->socialLoginOrRegister($fbUser, 'facebook');
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'No se pudo autenticar con Facebook: ' . $e->getMessage()
+            ], 401);
         }
-        $token = $user->createToken('facebook')->plainTextToken;
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
+    }
+
+    /**
+     * Iniciar sesión enviando un token de acceso de Facebook (para dispositivos móviles).
+     *
+     * @group Autenticación Social
+     * @subgroup Facebook
+     * @unauthenticated
+     * @bodyParam access_token string required El token de acceso obtenido de Facebook SDK en la app móvil.
+     * @response 200 {"user": {"id": 1, "name": "Facebook User", "email": "user@fb.com"}, "token": "1|abc..."}
+     * @response 401 {"error": "Token de Facebook inválido"}
+     */
+    public function loginWithFacebookToken(Request $request)
+    {
+        $request->validate([
+            'access_token' => 'required|string',
         ]);
+
+        try {
+            $fbUser = Socialite::driver('facebook')
+                ->stateless()
+                ->userFromToken($request->access_token);
+                
+            return $this->socialLoginOrRegister($fbUser, 'facebook');
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Token de Facebook inválido: ' . $e->getMessage()
+            ], 401);
+        }
     }
     // Login básico con Sanctum
     /**
