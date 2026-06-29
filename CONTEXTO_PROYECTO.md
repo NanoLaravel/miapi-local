@@ -580,7 +580,7 @@ Internet → Cloudflare → Nginx (host, :443)
 ```
 
 - **Directorio en VPS**: `/root/apps/miapi-local/`
-- **Usuario Docker**: `dockeruser` (ejecuta `docker compose`)
+- **Usuario Docker**: `dockeruser` (ejecuta `docker compose`; git lo ejecuta `root` vía SSH)
 - **Compose de producción**: `docker-compose.prod.yml`
 - **Variables de entorno**: `src/.env` (no está en Git)
 - **Dominio**: `api.nortedesantander.com`

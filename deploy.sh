@@ -26,11 +26,11 @@ else
   echo "Commit previo (rollback target): $PREVIOUS_COMMIT"
   echo ""
   echo "[1/7] Sincronizando código con origin/main..."
-  if ! run_as_dockeruser "git diff --quiet" || ! run_as_dockeruser "git diff --cached --quiet"; then
+  if ! git diff --quiet || ! git diff --cached --quiet; then
     echo "  → Descartando cambios locales en archivos rastreados (el VPS debe reflejar GitHub)."
   fi
-  run_as_dockeruser "git fetch origin main"
-  run_as_dockeruser "git reset --hard origin/main"
+  git fetch origin main
+  git reset --hard origin/main
 fi
 
 NEW_COMMIT=$(git rev-parse HEAD)
@@ -110,7 +110,7 @@ run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan down 
 
 if ! run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan migrate --force"; then
   echo "ERROR: Las migraciones fallaron. Iniciando rollback de código..."
-  run_as_dockeruser "git reset --hard $PREVIOUS_COMMIT"
+  git reset --hard "$PREVIOUS_COMMIT"
   run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan up"
   echo "Rollback completado. Commit activo: $PREVIOUS_COMMIT"
   exit 1

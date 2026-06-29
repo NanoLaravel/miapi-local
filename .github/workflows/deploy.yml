@@ -27,5 +27,6 @@ jobs:
           script: |
             cd /root/apps/miapi-local
             PREVIOUS=$(git rev-parse HEAD)
-            su - dockeruser -c "cd /root/apps/miapi-local && git fetch origin main && git reset --hard origin/main"
+            git fetch origin main
+            git reset --hard origin/main
             DEPLOY_PREVIOUS_COMMIT="$PREVIOUS" bash /root/apps/miapi-local/deploy.sh
