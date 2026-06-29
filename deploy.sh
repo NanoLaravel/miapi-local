@@ -16,16 +16,22 @@ echo "======================================================"
 
 cd "$PROJECT_DIR"
 
-PREVIOUS_COMMIT=$(git rev-parse HEAD)
-echo "Commit previo (rollback target): $PREVIOUS_COMMIT"
-
-echo ""
-echo "[1/7] Sincronizando código con origin/main..."
-if ! run_as_dockeruser "git diff --quiet" || ! run_as_dockeruser "git diff --cached --quiet"; then
-  echo "  → Descartando cambios locales en archivos rastreados (el VPS debe reflejar GitHub)."
+if [ -n "${DEPLOY_PREVIOUS_COMMIT:-}" ]; then
+  PREVIOUS_COMMIT="$DEPLOY_PREVIOUS_COMMIT"
+  echo "Commit previo (rollback target): $PREVIOUS_COMMIT"
+  echo ""
+  echo "[1/7] Código sincronizado con origin/main → $(git rev-parse HEAD)"
+else
+  PREVIOUS_COMMIT=$(git rev-parse HEAD)
+  echo "Commit previo (rollback target): $PREVIOUS_COMMIT"
+  echo ""
+  echo "[1/7] Sincronizando código con origin/main..."
+  if ! run_as_dockeruser "git diff --quiet" || ! run_as_dockeruser "git diff --cached --quiet"; then
+    echo "  → Descartando cambios locales en archivos rastreados (el VPS debe reflejar GitHub)."
+  fi
+  run_as_dockeruser "git fetch origin main"
+  run_as_dockeruser "git reset --hard origin/main"
 fi
-run_as_dockeruser "git fetch origin main"
-run_as_dockeruser "git reset --hard origin/main"
 
 NEW_COMMIT=$(git rev-parse HEAD)
 CHANGED_FILES=""
