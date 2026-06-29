@@ -58,7 +58,12 @@ miapi-local/
 │   ├── public/                # Archivos públicos
 │   └── routes/
 │       └── api.php            # Rutas API
-├── docker-compose.yml         # Orquestación Docker
+├── docker-compose.yml         # Orquestación Docker (local)
+├── docker-compose.prod.yml    # Orquestación Docker (producción VPS)
+├── deploy.sh                  # Script de despliegue continuo (CD)
+├── docker_ops.sh              # Operaciones manuales en VPS
+├── monitor.sh                 # Health check del VPS
+├── .github/workflows/deploy.yml  # GitHub Actions → SSH → deploy.sh
 ├── Makefile                   # Comandos make
 └── README.md
 ```
@@ -357,7 +362,6 @@ $ad->isValid()          // ¿Está vigente?
 | Events | `EventResource.php` | Gestión de eventos locales |
 | Advertisements | `AdvertisementResource.php` | Gestión de publicidad |
 | Users | `UserResource.php` | Gestión de usuarios |
-| Users | `UserResource.php` | Gestión de usuarios |
 
 ### Relation Managers (PlaceResource)
 
@@ -563,6 +567,63 @@ FACEBOOK_CLIENT_SECRET=
 
 ---
 
+## Infraestructura y Despliegue Continuo (CD)
+
+### Arquitectura en producción (VPS)
+
+```
+Internet → Cloudflare → Nginx (host, :443)
+                              ↓ proxy
+                    Docker Nginx (:8085, 127.0.0.1)
+                              ↓
+                    PHP-FPM (laravel_php) + MySQL (laravel_mysql)
+```
+
+- **Directorio en VPS**: `/root/apps/miapi-local/`
+- **Usuario Docker**: `dockeruser` (ejecuta `docker compose`)
+- **Compose de producción**: `docker-compose.prod.yml`
+- **Variables de entorno**: `src/.env` (no está en Git)
+- **Dominio**: `api.nortedesantander.com`
+
+### Pipeline CD
+
+1. `push` a rama `main` dispara `.github/workflows/deploy.yml`
+2. GitHub Actions se conecta por SSH al VPS
+3. Ejecuta `bash /root/apps/miapi-local/deploy.sh`
+
+**Secrets requeridos en GitHub**: `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `SSH_PORT`
+
+### Qué hace `deploy.sh` (optimizado)
+
+| Paso | Acción | Condición |
+|------|--------|-----------|
+| 1 | `git pull origin main` | Siempre |
+| 2 | `docker compose up -d` | Siempre; `--build` solo si cambian Docker/nginx |
+| 3 | `chown` storage + bootstrap/cache | Siempre (rápido, no todo el proyecto) |
+| 4 | `composer install --no-dev` | Solo si cambia `composer.lock` o falta vendor |
+| 5 | `npm run build` | Solo si cambian assets frontend |
+| 6 | `artisan migrate --force` | Siempre; rollback de git si falla |
+| 7 | Cache + smoke test HTTP `:8085` | Siempre |
+
+### Operaciones manuales en VPS
+
+```bash
+/root/apps/miapi-local/docker_ops.sh status   # Estado contenedores
+/root/apps/miapi-local/docker_ops.sh logs    # Logs en vivo
+/root/apps/miapi-local/monitor.sh            # Health check completo
+/root/apps/miapi-local/deploy.sh             # Despliegue manual
+```
+
+### Documentación de despliegue
+
+| Archivo | Contenido |
+|---------|-----------|
+| `DEPLOYMENT_CHECKLIST.md` | Checklist Cloudflare, Filament, sesiones |
+| `QUICK_REFERENCE.md` | Comandos diarios post-migración |
+| `MIGRATION_COMPLETED.md` | Estado de migración HestiaCP |
+
+---
+
 ## Archivos de Referencia Rápida
 
 | Propósito | Archivo |
@@ -576,3 +637,6 @@ FACEBOOK_CLIENT_SECRET=
 | Config Auth | `src/config/auth.php` |
 | Config Sanctum | `src/config/sanctum.php` |
 | Config Permisos | `src/config/permission.php` |
+| Despliegue CD | `deploy.sh` |
+| GitHub Actions | `.github/workflows/deploy.yml` |
+| Docker prod | `docker-compose.prod.yml` |

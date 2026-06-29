@@ -1,76 +1,128 @@
 #!/bin/bash
-set -e
+set -euo pipefail
+
+PROJECT_DIR="/root/apps/miapi-local"
+COMPOSE_FILE="docker-compose.prod.yml"
+DOCKER_USER="dockeruser"
+
+run_as_dockeruser() {
+  su - "$DOCKER_USER" -c "cd $PROJECT_DIR && $*"
+}
 
 echo "======================================================"
 echo " Iniciando despliegue continuo en VPS"
+echo " $(date '+%Y-%m-%d %H:%M:%S')"
 echo "======================================================"
 
-# 1. Navegar al directorio del proyecto
-cd /root/apps/miapi-local
+cd "$PROJECT_DIR"
 
-# Guardar el commit actual para rollback en caso de fallo
 PREVIOUS_COMMIT=$(git rev-parse HEAD)
 echo "Commit previo (rollback target): $PREVIOUS_COMMIT"
 
-# 2. Descargar los últimos cambios de GitHub
 echo ""
-echo "[1/6] Descargando última versión de GitHub..."
-git pull origin main
+echo "[1/7] Descargando última versión de GitHub..."
+run_as_dockeruser "git pull origin main"
 
-# 3. Asegurar la existencia de logs y permisos
+NEW_COMMIT=$(git rev-parse HEAD)
+CHANGED_FILES=""
+if [ "$PREVIOUS_COMMIT" != "$NEW_COMMIT" ]; then
+  CHANGED_FILES=$(git diff --name-only "$PREVIOUS_COMMIT" "$NEW_COMMIT")
+fi
+
 mkdir -p logs
 touch logs/laravel.log
 chmod -R 775 src/storage src/bootstrap/cache logs
 
-# 4. Levantar y compilar contenedores Docker con el compose de producción
-echo ""
-echo "[2/6] Reconstruyendo imágenes de Docker..."
-docker compose -f docker-compose.prod.yml up -d --build
-# 4.1 Corregir propietario de los archivos del proyecto para que coincidan
-# con el usuario 'laravel' (uid=1000) dentro del contenedor PHP
-echo "Corrigiendo permisos de archivos..."
-docker compose -f docker-compose.prod.yml exec -T -u root php chown -R laravel:laravel /var/www/html
+NEED_REBUILD=false
+NEED_COMPOSER=false
+NEED_NPM=false
 
-# 5. Instalar dependencias de Composer (sin dev)
-echo ""
-echo "[3/6] Instalando dependencias de Composer..."
-docker compose -f docker-compose.prod.yml exec -T php composer install --no-dev --optimize-autoloader
-
-# Generar APP_KEY en producción si no existe
-if ! grep -q "APP_KEY=base64" src/.env; then
-  echo "Generando APP_KEY de producción..."
-  docker compose -f docker-compose.prod.yml exec -T php php artisan key:generate
+if [ -z "$CHANGED_FILES" ]; then
+  echo "Sin cambios nuevos respecto al commit anterior."
+else
+  if echo "$CHANGED_FILES" | grep -qE '^(dockerfiles/|docker-compose\.prod\.yml|nginx/)'; then
+    NEED_REBUILD=true
+  fi
+  if echo "$CHANGED_FILES" | grep -qE '(composer\.(json|lock)|^src/composer\.(json|lock))'; then
+    NEED_COMPOSER=true
+  fi
+  if echo "$CHANGED_FILES" | grep -qE '(package\.json|package-lock\.json|vite\.config\.(js|ts)|^src/resources/)'; then
+    NEED_NPM=true
+  fi
 fi
 
-# Colocar Laravel en modo mantenimiento temporal
-echo ""
-echo "[4/6] Activando modo mantenimiento..."
-docker compose -f docker-compose.prod.yml exec -T php php artisan down --retry=15 || true
+# Primera vez o vendor incompleto
+if [ ! -d src/vendor/filament/filament ]; then
+  NEED_COMPOSER=true
+fi
 
-# 6. Ejecutar migraciones — con manejo de error y rollback automático
 echo ""
-echo "[5/6] Ejecutando migraciones de Base de Datos..."
-if ! docker compose -f docker-compose.prod.yml exec -T php php artisan migrate --force; then
+if [ "$NEED_REBUILD" = true ]; then
+  echo "[2/7] Reconstruyendo imágenes Docker (cambios en Docker/nginx)..."
+  run_as_dockeruser "docker compose -f $COMPOSE_FILE up -d --build"
+else
+  echo "[2/7] Levantando contenedores (sin rebuild)..."
+  run_as_dockeruser "docker compose -f $COMPOSE_FILE up -d"
+fi
+
+echo ""
+echo "[3/7] Corrigiendo permisos de storage y cache..."
+run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T -u root php chown -R laravel:laravel /var/www/html/storage /var/www/html/bootstrap/cache"
+
+if [ "$NEED_COMPOSER" = true ]; then
+  echo ""
+  echo "[4/7] Instalando dependencias de Composer..."
+  run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php composer install --no-dev --optimize-autoloader --no-interaction"
+else
+  echo ""
+  echo "[4/7] Composer: sin cambios en dependencias, omitido."
+fi
+
+if [ "$NEED_NPM" = true ]; then
+  echo ""
+  echo "[5/7] Compilando assets frontend..."
+  run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T node npm ci --prefer-offline --no-audit" \
+    || run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T node npm install --no-audit"
+  run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T node npm run build"
+else
+  echo ""
+  echo "[5/7] Frontend: sin cambios, npm build omitido."
+fi
+
+if ! grep -q "APP_KEY=base64" src/.env 2>/dev/null; then
+  echo "Generando APP_KEY de producción..."
+  run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan key:generate --force"
+fi
+
+echo ""
+echo "[6/7] Modo mantenimiento y migraciones..."
+run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan down --retry=15" || true
+
+if ! run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan migrate --force"; then
   echo "ERROR: Las migraciones fallaron. Iniciando rollback de código..."
-  git reset --hard "$PREVIOUS_COMMIT"
-  docker compose -f docker-compose.prod.yml exec -T php php artisan up
-  echo "Rollback completado. La aplicación sigue corriendo con el commit: $PREVIOUS_COMMIT"
+  run_as_dockeruser "git reset --hard $PREVIOUS_COMMIT"
+  run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan up"
+  echo "Rollback completado. Commit activo: $PREVIOUS_COMMIT"
   exit 1
 fi
 
-# 7. Limpiar y recrear caché de Laravel 12
 echo ""
-echo "[6/6] Optimizando cachés..."
-docker compose -f docker-compose.prod.yml exec -T php php artisan config:cache
-docker compose -f docker-compose.prod.yml exec -T php php artisan route:cache
-docker compose -f docker-compose.prod.yml exec -T php php artisan view:cache
-docker compose -f docker-compose.prod.yml exec -T php php artisan filament:cache-components || true
+echo "[7/7] Optimizando cachés..."
+run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan config:cache"
+run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan route:cache"
+run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan view:cache"
+run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan filament:cache-components" || true
+run_as_dockeruser "docker compose -f $COMPOSE_FILE exec -T php php artisan up"
 
-# Reactivar la aplicación
-docker compose -f docker-compose.prod.yml exec -T php php artisan up
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 http://127.0.0.1:8085/ || echo "000")
+if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
+  echo "Smoke test OK (HTTP $HTTP_CODE)"
+else
+  echo "ADVERTENCIA: smoke test devolvió HTTP $HTTP_CODE"
+fi
 
 echo ""
 echo "======================================================"
-echo " ¡Despliegue completado con éxito!"
+echo " Despliegue completado con éxito"
 echo " Commit desplegado: $(git rev-parse HEAD)"
 echo "======================================================"
