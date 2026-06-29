@@ -597,7 +597,7 @@ Internet → Cloudflare → Nginx (host, :443)
 
 | Paso | Acción | Condición |
 |------|--------|-----------|
-| 1 | `git pull origin main` | Siempre |
+| 1 | `git fetch` + `git reset --hard origin/main` | Siempre (descarta cambios locales en archivos rastreados) |
 | 2 | `docker compose up -d` | Siempre; `--build` solo si cambian Docker/nginx |
 | 3 | `chown` storage + bootstrap/cache | Siempre (rápido, no todo el proyecto) |
 | 4 | `composer install --no-dev` | Solo si cambia `composer.lock` o falta vendor |
