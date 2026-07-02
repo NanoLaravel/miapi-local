@@ -147,9 +147,9 @@ class PlaceResource extends Resource
                             ->directory('lugares')
                             ->disk('public')
                             ->previewable(true)
-                            ->openable()  // Permite abrir la imagen en una nueva pestaña                              
-                            ->hiddenLabel(),                            
-                            
+                            ->openable()
+                            ->hiddenLabel()
+                            ->required(),
                     ])
                     ->columns(1)
                     ->grid(2)  // Muestra los items en grid de 2 columnas

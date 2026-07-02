@@ -151,7 +151,8 @@ class AdvertisementResource extends Resource
                             ->disk('public')
                             ->previewable(true)
                             ->openable()
-                            ->hiddenLabel(),
+                            ->hiddenLabel()
+                            ->required(),
                     ])
                     ->columns(1)
                     ->grid(2)
