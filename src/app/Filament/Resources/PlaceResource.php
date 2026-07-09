@@ -117,22 +117,22 @@ class PlaceResource extends Resource
                     ->searchable()
                     ->required()
                     ->columnSpanFull(),
-                Forms\Components\Repeater::make('initial_images')
-                    ->label('Imágenes del lugar')
+                 Forms\Components\Repeater::make('initial_images')
+                    ->label('Imágenes adicionales (opcional)')
                     ->schema([
                         Forms\Components\FileUpload::make('path')
                             ->label('Imagen')
                             ->image()
-                            ->directory('images')
-                            ->required(),
+                            ->directory('images'),
                         Forms\Components\TextInput::make('description')
                             ->label('Descripción de la imagen')
                             ->maxLength(255),
                     ])
                     ->default([])
+                    ->minItems(0)
                     ->columns(2)
                     ->columnSpanFull()
-                    ->helperText('Puedes agregar más imágenes luego desde la pestaña "Imágenes".')
+                    ->helperText('Opcional. Puedes agregar más imágenes luego desde la pestaña "Imágenes".')
                     ->dehydrated(false)
                     ->visible(fn(string $context) => $context === 'create'),
                 // Galería de imágenes con Repeater para edición
@@ -154,7 +154,8 @@ class PlaceResource extends Resource
                     ->columns(1)
                     ->grid(2)  // Muestra los items en grid de 2 columnas
                     ->minItems(0)
-                    ->maxItems(8),
+                    ->maxItems(8)
+                    ->visible(fn(string $context) => $context === 'edit'),
             ]);
     }
 

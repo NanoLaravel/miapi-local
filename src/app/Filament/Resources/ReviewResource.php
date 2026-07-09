@@ -68,44 +68,60 @@ class ReviewResource extends Resource
                 Tables\Columns\TextColumn::make('place.name')
                     ->label('Lugar')
                     ->searchable()
-                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Usuario')
                     ->searchable()  
-                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('rating')
                     ->label('Calificación')
-                    ->numeric()
+                    ->badge()
+                    ->color(fn ($state) => match(true) {
+                        $state >= 4 => 'success',
+                        $state >= 3 => 'warning',
+                        default     => 'danger',
+                    })
                     ->sortable(),
+                Tables\Columns\TextColumn::make('comment')
+                    ->label('Comentario')
+                    ->limit(50)
+                    ->placeholder('Sin comentario')
+                    ->wrap()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('cleanliness')
                     ->label('Limpieza')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('accuracy')
                     ->label('Puntualidad')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('check_in')
                     ->label('Facilidad de Check In')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('communication')
                     ->label('Comunicación')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('location')
                     ->label('Ubicación')
                     ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('price')
+                    ->label('Precio')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Fecha')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()

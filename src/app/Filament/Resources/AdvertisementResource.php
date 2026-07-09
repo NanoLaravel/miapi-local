@@ -117,24 +117,24 @@ class AdvertisementResource extends Resource
                     ->helperText('Imagen principal del anuncio. Tamaño recomendado: 1200x400px para banners.')
                     ->columnSpanFull(),
 
-                // Imágenes iniciales solo para creación
+                // Imágenes iniciales solo para creación (opcionales)
                 Forms\Components\Repeater::make('initial_images')
-                    ->label('Imágenes adicionales')
+                    ->label('Imágenes adicionales (opcional)')
                     ->schema([
                         Forms\Components\FileUpload::make('path')
                             ->label('Imagen')
                             ->image()
                             ->directory('publicidad')
-                            ->disk('public')
-                            ->required(),
+                            ->disk('public'),
                         Forms\Components\TextInput::make('description')
                             ->label('Descripción de la imagen')
                             ->maxLength(255),
                     ])
                     ->default([])
+                    ->minItems(0)
                     ->columns(2)
                     ->columnSpanFull()
-                    ->helperText('Puedes agregar más imágenes luego desde la pestaña "Imágenes".')
+                    ->helperText('Opcional. Puedes agregar más imágenes luego desde la pestaña "Imágenes".')
                     ->dehydrated(false)
                     ->visible(fn(string $context) => $context === 'create'),
 
@@ -157,7 +157,8 @@ class AdvertisementResource extends Resource
                     ->columns(1)
                     ->grid(2)
                     ->minItems(0)
-                    ->maxItems(8),
+                    ->maxItems(8)
+                    ->visible(fn (string $context) => $context === 'edit'),
             ]);
     }
 

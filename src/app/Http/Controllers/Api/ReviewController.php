@@ -46,19 +46,22 @@ class ReviewController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'place_id' => 'required|exists:places,id',
-            'user_id' => 'required|exists:users,id',
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string|max:1000',
-            'cleanliness' => 'nullable|integer|min:1|max:5',
-            'accuracy' => 'nullable|integer|min:1|max:5',
-            'check_in' => 'nullable|integer|min:1|max:5',
+            'place_id'      => 'required|exists:places,id',
+            'rating'        => 'required|integer|min:1|max:5',
+            'comment'       => 'nullable|string|max:1000',
+            'cleanliness'   => 'nullable|integer|min:1|max:5',
+            'accuracy'      => 'nullable|integer|min:1|max:5',
+            'check_in'      => 'nullable|integer|min:1|max:5',
             'communication' => 'nullable|integer|min:1|max:5',
-            'location' => 'nullable|integer|min:1|max:5',
-            'price' => 'nullable|integer|min:1|max:5',
+            'location'      => 'nullable|integer|min:1|max:5',
+            'price'         => 'nullable|integer|min:1|max:5',
         ]);
+
+        // El user_id siempre viene del usuario autenticado, no del request
+        $validated['user_id'] = auth()->id();
+
         $review = Review::create($validated);
-        return response()->json($review, 201);
+        return response()->json($review->load('user:id,name,avatar_url'), 201);
     }
 
     /**
