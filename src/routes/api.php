@@ -9,7 +9,8 @@ use App\Http\Controllers\Api\{
     AuthController,
     PlaceFilterController,
     EventController,
-    AdvertisementController
+    AdvertisementController,
+    LocalProductController
 };
 
 /*
@@ -78,6 +79,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('events', EventController::class);
 
     Route::apiResource('advertisements', AdvertisementController::class);
+
+    Route::get('local-products/featured', [LocalProductController::class, 'featured']);
+    Route::apiResource('local-products', LocalProductController::class);
 
 
     /*
