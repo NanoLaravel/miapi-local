@@ -42,6 +42,13 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\FilamentInfoWidget::class,
                 \App\Filament\Widgets\StatsOverviewWidget::class,
                 \App\Filament\Widgets\GrowthChartWidget::class,
+                \App\Filament\Widgets\MonetizationOverviewWidget::class,
+                \App\Filament\Widgets\RevenueChartWidget::class,
+                \App\Filament\Widgets\ReservationMetricsWidget::class,
+                \App\Filament\Widgets\SubscriptionAnalyticsWidget::class,
+                \App\Filament\Widgets\LeadStatusChartWidget::class,
+                \App\Filament\Widgets\PromotionUsageChartWidget::class,
+                \App\Filament\Widgets\PromotionPerformanceWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

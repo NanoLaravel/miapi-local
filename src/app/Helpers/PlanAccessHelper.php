@@ -61,7 +61,11 @@ class PlanAccessHelper
     {
         $subscription = self::getActiveSubscription($ownerId);
 
-        return (bool) ($subscription && $subscription->plan?->promotions_enabled);
+        if (!$subscription) {
+            return false;
+        }
+
+        return (bool) ($subscription->plan?->promotions_enabled || $subscription->plan?->target_type === 'hybrid');
     }
 
     public static function canAccessAnalytics(int $ownerId): bool
