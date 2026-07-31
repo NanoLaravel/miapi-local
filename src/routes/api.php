@@ -10,7 +10,13 @@ use App\Http\Controllers\Api\{
     PlaceFilterController,
     EventController,
     AdvertisementController,
-    LocalProductController
+    LocalProductController,
+    LeadController,
+    ReservationController,
+    SubscriptionPlanController,
+    OwnerSubscriptionController,
+    PromotionController,
+    AnalyticsController
 };
 
 /*
@@ -83,6 +89,26 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('local-products/featured', [LocalProductController::class, 'featured']);
     Route::apiResource('local-products', LocalProductController::class);
 
+    Route::get('subscription-plans', [SubscriptionPlanController::class, 'index']);
+    Route::get('owner-subscriptions', [OwnerSubscriptionController::class, 'index']);
+    Route::post('owner-subscriptions', [OwnerSubscriptionController::class, 'store']);
+
+    Route::get('leads', [LeadController::class, 'index']);
+    Route::post('leads', [LeadController::class, 'store']);
+    Route::get('leads/{lead}', [LeadController::class, 'show']);
+    Route::patch('leads/{lead}/status', [LeadController::class, 'updateStatus']);
+
+    Route::get('reservations', [ReservationController::class, 'index']);
+    Route::post('reservations', [ReservationController::class, 'store']);
+    Route::get('reservations/{reservation}', [ReservationController::class, 'show']);
+    Route::patch('reservations/{reservation}/status', [ReservationController::class, 'updateStatus']);
+
+    Route::get('promotions', [PromotionController::class, 'index']);
+    Route::post('promotions', [PromotionController::class, 'store']);
+    Route::get('promotions/{promotion}', [PromotionController::class, 'show']);
+    Route::patch('promotions/{promotion}', [PromotionController::class, 'update']);
+
+    Route::get('analytics/summary', [AnalyticsController::class, 'summary']);
 
     /*
     |--------------------------------------------------------------------------

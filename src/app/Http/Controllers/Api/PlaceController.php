@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\PlanAccessHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Place;
@@ -24,7 +25,14 @@ class PlaceController extends Controller
                 $q->where('categories.id', $request->category_id);
             });
         }
-        return $query->with(['categories', 'images', 'reviews'])->paginate(10);
+
+        $items = $query->with(['categories', 'images', 'reviews'])->paginate(10);
+
+        foreach ($items as $item) {
+            $item->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) ($item->user_id ?? 0), $item->type === 'hotel' ? 'place' : 'place'));
+        }
+
+        return $items;
     }
 
     /**
@@ -32,9 +40,11 @@ class PlaceController extends Controller
      */
     public function show(Place $place)
     {
-      $this->authorize('view', $place);    
-    return $place-> load(['categories', 'images', 'reviews']);
-        
+      $this->authorize('view', $place);
+      $place->load(['categories', 'images', 'reviews']);
+      $place->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) ($place->user_id ?? 0), 'place'));
+
+      return response()->json($place);
     }
 
     /**
@@ -42,7 +52,13 @@ class PlaceController extends Controller
      */
     public function byType($type)
     {
-        return Place::where('type', $type)->with(['categories', 'images', 'reviews'])->get();
+        $places = Place::where('type', $type)->with(['categories', 'images', 'reviews'])->get();
+
+        foreach ($places as $place) {
+            $place->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) ($place->user_id ?? 0), 'place'));
+        }
+
+        return $places;
     }
 
     /**
@@ -50,9 +66,15 @@ class PlaceController extends Controller
      */
     public function byCategory($categoryId)
     {
-        return Place::whereHas('categories', function($q) use ($categoryId) {
+        $places = Place::whereHas('categories', function($q) use ($categoryId) {
             $q->where('categories.id', $categoryId);
         })->with(['categories', 'images', 'reviews'])->get();
+
+        foreach ($places as $place) {
+            $place->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) ($place->user_id ?? 0), 'place'));
+        }
+
+        return $places;
     }
 
     /**
@@ -87,7 +109,10 @@ class PlaceController extends Controller
             $place->categories()->sync($request->input('category_ids'));
         }
 
-        return response()->json($place->load(['categories', 'images', 'reviews']), 201);
+        $place->load(['categories', 'images', 'reviews']);
+        $place->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) ($place->user_id ?? 0), 'place'));
+
+        return response()->json($place, 201);
     }
 
     /**
@@ -121,7 +146,10 @@ class PlaceController extends Controller
             $place->categories()->sync($request->input('category_ids'));
         }
 
-        return response()->json($place->load(['categories', 'images', 'reviews']));
+        $place->load(['categories', 'images', 'reviews']);
+        $place->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) ($place->user_id ?? 0), 'place'));
+
+        return response()->json($place);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\PlanAccessHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\LocalProduct;
@@ -23,6 +24,12 @@ class LocalProductController extends Controller
     public function index(Request $request)
     {
         $query = LocalProduct::query()->with(['images', 'user:id,name']);
+
+        $ownerId = $request->get('owner_id');
+        if ($ownerId) {
+            $limits = PlanAccessHelper::getPlanLimits((int) $ownerId, 'local_product');
+            $request->merge(['plan_limits' => $limits]);
+        }
 
         // Filtrar por activo
         if ($request->has('active')) {
@@ -52,7 +59,13 @@ class LocalProductController extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        return $query->paginate($request->get('per_page', 10));
+        $items = $query->paginate($request->get('per_page', 10));
+
+        foreach ($items as $item) {
+            $item->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) ($item->user_id ?? 0), 'local_product'));
+        }
+
+        return $items;
     }
 
     /**
@@ -60,11 +73,17 @@ class LocalProductController extends Controller
      */
     public function featured()
     {
-        return LocalProduct::active()
+        $products = LocalProduct::active()
             ->featured()
             ->with(['images', 'user:id,name'])
             ->orderBy('created_at', 'desc')
             ->get();
+
+        foreach ($products as $product) {
+            $product->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) ($product->user_id ?? 0), 'local_product'));
+        }
+
+        return $products;
     }
 
     /**
@@ -88,8 +107,10 @@ class LocalProductController extends Controller
         $validated['user_id'] = Auth::id();
 
         $product = LocalProduct::create($validated);
+        $product->load(['images', 'user:id,name']);
+        $product->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) ($product->user_id ?? 0), 'local_product'));
 
-        return response()->json($product->load(['images', 'user:id,name']), 201);
+        return response()->json($product, 201);
     }
 
     /**
@@ -97,7 +118,10 @@ class LocalProductController extends Controller
      */
     public function show(LocalProduct $localProduct)
     {
-        return $localProduct->load(['images', 'user:id,name']);
+        $localProduct->load(['images', 'user:id,name']);
+        $localProduct->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) $localProduct->user_id, 'local_product'));
+
+        return $localProduct;
     }
 
     /**
@@ -119,8 +143,10 @@ class LocalProductController extends Controller
         ]);
 
         $localProduct->update($validated);
+        $localProduct->load(['images', 'user:id,name']);
+        $localProduct->setAttribute('plan_limits', PlanAccessHelper::getPlanLimits((int) ($localProduct->user_id ?? 0), 'local_product'));
 
-        return response()->json($localProduct->load(['images', 'user:id,name']));
+        return response()->json($localProduct);
     }
 
     /**
